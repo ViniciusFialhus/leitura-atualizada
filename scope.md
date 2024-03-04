@@ -77,12 +77,7 @@ Modulos:
 
 TODOS:
 
-1 - Routes setup
-2 - Prisma schema
+1 - Routes setup / Prisma schema
+2 - Entities / DTOS
 3 - Docker file
-4 - Entities / DTOS
-5 - Passport
-
-Passport
-DTOS
-Entities
+4 - Passport
