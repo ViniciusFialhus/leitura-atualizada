@@ -11,7 +11,7 @@ Modulos:
 
     - Books:
       > GET /books: Retorna a lista de todos os livros disponíveis na biblioteca.
-      
+
       > GET /books/search?q={query}: Busca livros por nome ou autor, utilizando o parâmetro de consulta "q".
 
       > GET /books/{id}: Retorna detalhes de um livro específico pelo seu ID.
@@ -19,7 +19,7 @@ Modulos:
       > POST /books: Adiciona um novo livro à biblioteca (apenas para administradores, lembrando que já vamos ter vários livros puxados da api).
 
         [Exemplo do body:
-        
+
           {
           "id": "id do livro"
           "title": "Título do Livro",
@@ -75,3 +75,14 @@ Modulos:
 
       > GET /wishlist/share: Retorna uma URL única para compartilhar a lista de desejos do usuário.
 
+TODOS:
+
+1 - Routes setup
+2 - Prisma schema
+3 - Docker file
+4 - Entities / DTOS
+5 - Passport
+
+Passport
+DTOS
+Entities
