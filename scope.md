@@ -1,6 +1,20 @@
+---> Daily: 14:30 <---
+
+TODOS:
+
+- Passport: Luiz & Alexon
+
+- Arquivo Docker: Iago
+
+- Conferencia de Rotas: Leandro [books] & Vinicius [loans & users]
+
+Conferencia geral:
+
 Duvidas:
 
     - Identificação do que é isbn [ funcionalidade ]
+    - JOI ou Class-validator
+    - Qual a entrega
 
 Modulos:
 
@@ -74,10 +88,3 @@ Modulos:
       > DELETE /wishlist/{id}: Remove um livro da lista de desejos do usuário.
 
       > GET /wishlist/share: Retorna uma URL única para compartilhar a lista de desejos do usuário.
-
-TODOS:
-
-1 - Routes setup / Prisma schema
-2 - Entities / DTOS
-3 - Docker file
-4 - Passport
