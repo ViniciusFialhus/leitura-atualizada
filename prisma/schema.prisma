@@ -11,6 +11,7 @@ model User {
   id        String   @id @default(uuid())
   name      String   @db.VarChar(255)
   email     String   @unique
+  isAdm     Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
