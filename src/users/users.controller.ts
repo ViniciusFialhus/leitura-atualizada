@@ -27,7 +27,7 @@ export class UsersController {
 
   @Put('/profile/:id')
   updateProfile(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Get('/wishlist')
@@ -42,7 +42,7 @@ export class UsersController {
 
   @Delete('/wishlist/:id')
   removeWishlistingBooks(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+    return this.usersService.remove(id);
   }
 
   @Get('/wishlist/share')
