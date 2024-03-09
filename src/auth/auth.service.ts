@@ -1,65 +1,59 @@
 import {
-  BadRequestException,
   Injectable,
-  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { generateFromEmail } from 'unique-username-generator';
-import { User } from './entities/google-user.entity';
+import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import { User } from '../users/entities/user.entity';
+import { UserLoginDto } from './entities/user-login.dto';
+import { UserPayload } from './entities/user-payload';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    @InjectRepository(User) private userRepository: Repository<User>,
+    private readonly prisma: PrismaClient,
   ) {}
 
-  async generateJwt(payload) {
+  async generateJwt(payload: UserPayload) {
     return await this.jwtService.signAsync(payload);
   }
 
-  async signIn(user) {
-    if (!user) {
-      throw new BadRequestException('Unauthenticated');
-    }
-
-    const userExists = await this.findUserByEmail(user.email);
-
-    if (!userExists) {
-      return this.registerUser(user);
-    }
-
-    return this.generateJwt({
-      sub: userExists.id,
-      email: userExists.email,
-    });
-  }
-
-  async registerUser(user: { email: string }) {
-    try {
-      const newUser = this.userRepository.create(user);
-      newUser.username = generateFromEmail(user.email, 5);
-
-      await this.userRepository.save(newUser);
-
-      return this.generateJwt({
-        sub: newUser.id,
-        email: newUser.email,
-      });
-    } catch {
-      throw new InternalServerErrorException();
-    }
-  }
-
-  async findUserByEmail(email: string) {
-    const user = await this.userRepository.findOne({ where: { email } });
+  private async findUserByEmail(email: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      return null;
+      throw new NotFoundException('Email não encontrado');
     }
 
     return user;
+  }
+
+  async validateUser(userData: UserLoginDto) {
+    const user = await this.findUserByEmail(userData.email);
+
+    const isPasswordValid = await bcrypt.compare(
+      userData.password,
+      user.password,
+    );
+
+    if (!user || !isPasswordValid) {
+      throw new UnauthorizedException('Email ou senha incorretos.');
+    }
+
+    return user;
+  }
+
+  async login(userData: UserLoginDto): Promise<string> {
+    const userFound = await this.validateUser(userData);
+
+    const payload: UserPayload = {
+      sub: userFound.id,
+      email: userFound.email,
+    };
+
+    return this.generateJwt(payload);
   }
 }
