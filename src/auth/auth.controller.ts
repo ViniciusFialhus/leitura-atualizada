@@ -1,3 +1,5 @@
+import { Controller } from '@nestjs/common';
+import { AuthService } from './auth.service';
 import {
   Controller,
   Get,
@@ -41,4 +43,5 @@ export class AuthController {
 
     return res.status(HttpStatus.OK);
   }
+
 }
