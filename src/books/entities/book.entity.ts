@@ -1,8 +1,9 @@
 export class Book {
-  title: string;
-  author: string;
-  genre: string;
-  description: string;
-  isbn: string;
-  imageUrl: string;
+  title: String;
+  author: String;
+  genre?: String;
+  description?: String;
+  isbn: String;
+  publishedAt?: Date;
+  imageUrl: String;
 }
