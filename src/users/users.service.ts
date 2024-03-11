@@ -1,9 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { WishlistRepository } from './repository/user-wishlist.repository';
 
 @Injectable()
 export class UsersService {
+  constructor(private readonly wishlistRepository: WishlistRepository) {}
+
   create(createUserDto: CreateUserDto) {
     return 'This action adds a new user';
   }

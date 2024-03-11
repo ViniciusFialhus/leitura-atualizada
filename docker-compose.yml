@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  node-server:
+    build: ./
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: simplepassword123456
+      MYSQL_DATABASE: leitura_atualizada
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - '3306:3306'
+    volumes:
+      - data:/data/db
+
+  prisma:
+    image: prismagraphql/prisma:1.34.10
+    ports:
+      - '4466:4466'
+    environment:
+      PRISMA_CONFIG: |
+        managementApiSecret: simplepassword123456
+        port: 4466 
+        databases:
+          default:
+            connector: mysql
+            host: db
+            port: 3306
+            user: root
+            password: root
+            connectionLimit: 10 # Um limite de conexão razoável
+
+volumes:
+  data:

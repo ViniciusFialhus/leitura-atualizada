@@ -4,7 +4,29 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  url      = "mysql://root:root@db:3306/leitura_atualizada"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(255)
+  email     String   @unique
+  isAdm     Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Book {
+  id          String    @id @default(uuid())
+  title       String    @db.VarChar(100)
+  author      String    @db.VarChar(100)
+  genre       String?   @db.VarChar(20)
+  description String?   @db.VarChar(255)
+  isbn        String    @db.VarChar(13)
+  imgUrl      String    @db.VarChar(3000)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model User {
