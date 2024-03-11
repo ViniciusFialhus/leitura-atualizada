@@ -24,10 +24,6 @@ export class UsersService {
   }
 
   remove(id: string) {
-    if (!id) throw new HttpException('erro', HttpStatus.NOT_FOUND);
-
-    this.wishlistRepository.remove(id);
-
-    return;
+    return `This action removes a #${id} user`;
   }
 }
