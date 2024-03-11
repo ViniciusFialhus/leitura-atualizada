@@ -28,10 +28,3 @@ model Book {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
-
-model User {
-  email    String @unique
-  id       String @unique
-  username String @unique
-  password String
-}

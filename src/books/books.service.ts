@@ -13,7 +13,7 @@ export class BooksService {
   }
 
   searchBook(q: String) {
-    return `This action returns a #${q} book`
+    return `This action returns a #${q} book`;
   }
 
   findOne(id: string) {

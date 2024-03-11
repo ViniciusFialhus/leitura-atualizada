@@ -7,8 +7,9 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { Book } from '../entities/book.entity';
 
-export class CreateBookDto {
+export class CreateBookDto implements Book {
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)
