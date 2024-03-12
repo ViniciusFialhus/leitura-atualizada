@@ -1,28 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdateUserDto } from '../dto/update-user.dto';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { createWishlistDto } from '../dto/create-wishlist.dto';
+import { updateWishlistDto } from '../dto/update-user.dto';
 
 @Injectable()
 export class WishlistRepository {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(private prisma: PrismaService) {}
+  async findWishlist() {
+    return await this.prisma.wishlist.findMany();
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async createWishlistingBooks(createWishlistDto: CreateWishlistDto) {
+    return await this.prisma.wishlist.create({
+      data: createWishlistDto,
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async removeWishlistingBooks(id: string) {
+    return await this.prisma.wishlist.delete(id);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: string) {
-    // remover com prisma
-
-    return;
+  async findShareLink(id: string) {
+    return await this.prisma.wishlist.findUnique({
+      where: { id: id },
+      select: { shareLink: true } 
+    });
   }
 }
