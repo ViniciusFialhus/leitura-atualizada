@@ -6,9 +6,9 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { User } from '../users/entities/user.entity';
-import { UserLoginDto } from './entities/user-login.dto';
-import { UserPayload } from './entities/user-payload';
+import { AuthLoginDto } from './dtos/auth-login.dto';
+import { AuthPayloadDto } from './dtos/auth-payload.dto';
+import { AuthLogin as UserCredentials } from './entities/auth-login.entity';
 
 @Injectable()
 export class AuthService {
@@ -17,11 +17,11 @@ export class AuthService {
     private readonly prisma: PrismaClient,
   ) {}
 
-  async generateJwt(payload: UserPayload) {
+  async generateJwt(payload: AuthPayloadDto) {
     return await this.jwtService.signAsync(payload);
   }
 
-  private async findUserByEmail(email: string): Promise<User> {
+  private async findUserByEmail(email: string): Promise<UserCredentials> {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
@@ -31,7 +31,9 @@ export class AuthService {
     return user;
   }
 
-  async validateUser(userData: UserLoginDto) {
+  async validateUser(
+    userData: Partial<AuthLoginDto>,
+  ): Promise<UserCredentials> {
     const user = await this.findUserByEmail(userData.email);
 
     const isPasswordValid = await bcrypt.compare(
@@ -46,10 +48,10 @@ export class AuthService {
     return user;
   }
 
-  async login(userData: UserLoginDto): Promise<string> {
+  async login(userData: AuthLoginDto): Promise<string> {
     const userFound = await this.validateUser(userData);
 
-    const payload: UserPayload = {
+    const payload: AuthPayloadDto = {
       sub: userFound.id,
       email: userFound.email,
     };

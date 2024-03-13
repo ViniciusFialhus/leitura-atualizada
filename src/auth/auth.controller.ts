@@ -1,5 +1,3 @@
-import { Controller } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import {
   Controller,
   Get,
@@ -12,7 +10,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserLoginDto } from './entities/user-login.dto';
+import { AuthLoginDto } from './dtos/auth-login.dto';
 import { Response } from 'express';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
 
@@ -22,7 +20,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() user: UserLoginDto) {
+  async login(@Body() user: AuthLoginDto) {
     return await this.authService.login(user);
   }
 
@@ -43,5 +41,4 @@ export class AuthController {
 
     return res.status(HttpStatus.OK);
   }
-
 }
