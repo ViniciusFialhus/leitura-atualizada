@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestj
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { Book } from './entities/book.entity';
 
 @Controller('books')
 export class BooksController {
@@ -18,7 +19,7 @@ export class BooksController {
   }
 
   @Get('search')
-  searchBook(@Query() query: string) {
+  searchBook(@Query() query: Book) {
     return this.booksService.searchBook(query)
   }
 

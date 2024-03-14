@@ -1,29 +1,71 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { UserRepository } from './repository/user.repository';
+import { WishlistRepository } from './repository/user-wishlist.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { WishlistRepository } from './repository/user-wishlist.repository';
+import { createWishlistDto } from '../dto/create-wishlist.dto';
+import { updateWishlistDto } from '../dto/update-user.dto';
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly wishlistRepository: WishlistRepository) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  async createUser(createUserDto: CreateUserDto): Promise<CreateUserDto> {
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email: createUserDto.email,
+      },
+    });
+    if (existingUser) {
+      throw new HttpException('Usuario já existente', HttpStatus.BAD_REQUEST);
+    }
+    return await prisma.user.create({
+      data: createUserDto,
+    });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAllUser() {
+    return this.userRepository.findAllUser();
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} user`;
+  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email: createUserDto.email,
+      },
+    });
+    if (existingUser) {
+      throw new HttpException('Usuario não encontrado', HttpStatus.BAD_REQUEST);
+    }
+    return await this.userRepository.updateUser(id, updateUserDto);
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findAllWishlist() {
+    return this.WishlistRepository.findWishlist();
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} user`;
+  async createWishlist(createWishlistDto: CreateWishlistDto): Promise<CreateWishlistDto> {
+    const existingUser = await prisma.wishlist.findUnique({
+      where: {
+        id: CreateWishlistDto.id,
+      },
+    });
+    if (existingUser) {
+      throw new HttpException('Usuario já existente', HttpStatus.BAD_REQUEST);
+    }
+    return await prisma.wishlist.createWishlistingBooks({
+      data: createWishlistDto,
+    });
   }
+
+  async removeWishlistingBooks(id: string) {
+    return this.WishlistRepository.removeWishlistingBooks(id);
+  }
+
+  async findShareLink(id: string) {
+    return this.WishlistRepository.findShareLink(id);
+  }
+
 }

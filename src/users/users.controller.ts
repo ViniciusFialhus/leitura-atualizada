@@ -17,36 +17,36 @@ export class UsersController {
 
   @Post('/profile')
   createProfileInfo(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    return this.usersService.createUser(createUserDto);
   }
 
   @Get('/profile')
   findProfile() {
-    return this.usersService.findAll();
+    return this.usersService.findAllUser();
   }
 
   @Put('/profile/:id')
   updateProfile(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+    return this.usersService.updateUser(id, updateUserDto);
   }
 
   @Get('/wishlist')
   findWishlist() {
-    return this.usersService.findAll();
+    return this.usersService.findAllWishlist();
   }
 
   @Post('/wishlist')
   createWishlistingBooks(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    return this.usersService.createWishlist(createUserDto);
   }
 
   @Delete('/wishlist/:id')
   removeWishlistingBooks(@Param('id') id: string) {
-    return this.usersService.remove(id);
+    return this.usersService.removeWishlistingBooks(id);
   }
 
   @Get('/wishlist/share')
   findShareLink() {
-    return this.usersService.findAll();
+    return this.usersService.findShareLinkl();
   }
 }
