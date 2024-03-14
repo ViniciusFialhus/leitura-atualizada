@@ -1,1 +1,4 @@
-export class Loan {}
+export interface Loan {
+  userId: String;
+  bookId: String;
+}
