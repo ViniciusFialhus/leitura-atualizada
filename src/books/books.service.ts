@@ -12,8 +12,20 @@ export class BooksService {
   async create(createBookDto: CreateBookDto) {
     const { isbn } = createBookDto
     const response = await this.httpSevice.axiosRef.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
-    return response.data
-    // filtra dados
+
+    const newbook: Book = {
+      title: response.data.items[0].volumeInfo.tittle,
+      author: response.data.items[0].volumeInfo.authors[0],
+      genre: response.data.items[0].volumeInfo.categories[0],
+      description: response.data.items[0].searchInfo.textSnippet,
+      isbn: response.data.items[0].volumeInfo.industryIdentifiers[0].identifier,
+      publishedAt: response.data.items[0].volumeInfo.publishedDate,
+      imageUrl: response.data.items[0].volumeInfo.readingModes.image
+    }
+
+    return this.prisma.Book.create({
+      data: newbook
+    })
   }
 
   findAll() {
