@@ -3,6 +3,47 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider          = "postgres"
+  url               = "postgres://ohyqtpqq:xnes1r4xQWmULhro4AtGLmDkhZLAF4zp@tuffi.db.elephantsql.com/ohyqtpqq"
+  shadowDatabaseUrl = "postgres://postgres:123456@localhost:5432"
+}
+
+model User {
+  id        String     @id @default(uuid())
+  name      String     @db.VarChar(255)
+  email     String     @unique
+  isAdm     Boolean    @default(false)
+  password  String     @db.VarChar(32)
+  userName  String     @db.VarChar(50)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Wishlist  Wishlist[]
+
+  @@map("users")
+}
+
+model Book {
+  id          String     @id @default(uuid())
+  title       String     @db.VarChar(100)
+  author      String     @db.VarChar(100)
+  genre       String?    @db.VarChar(20)
+  description String?    @db.VarChar(255)
+  isbn        String     @db.VarChar(13)
+  imgUrl      String     @db.VarChar(3000)
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  Wishlist    Wishlist[]
+
+  @@map("book")
+}
+
+model Wishlist {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  bookId String
+  book   Book   @relation(fields: [bookId], references: [id])
+
+  @@map("wishlist")
 }
