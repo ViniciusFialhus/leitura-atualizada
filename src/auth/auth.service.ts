@@ -4,24 +4,24 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { User } from '../users/entities/user.entity';
-import { UserLoginDto } from './entities/user-login.dto';
-import { UserPayload } from './entities/user-payload';
+import { PrismaService } from 'prisma/prisma.service';
+import { AuthLoginDto } from './dtos/auth-login.dto';
+import { AuthPayloadDto } from './dtos/auth-payload.dto';
+import { AuthLogin as UserCredentials } from './entities/auth-login.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    private readonly prisma: PrismaClient,
-  ) {}
+    private readonly prisma: PrismaService,
+  ) { }
 
-  async generateJwt(payload: UserPayload) {
+  async generateJwt(payload: AuthPayloadDto) {
     return await this.jwtService.signAsync(payload);
   }
 
-  private async findUserByEmail(email: string): Promise<User> {
+  async findUserByEmail(email: string): Promise<UserCredentials> {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
@@ -31,7 +31,9 @@ export class AuthService {
     return user;
   }
 
-  async validateUser(userData: UserLoginDto) {
+  async validateUser(
+    userData: Partial<AuthLoginDto>,
+  ): Promise<UserCredentials> {
     const user = await this.findUserByEmail(userData.email);
 
     const isPasswordValid = await bcrypt.compare(
@@ -39,21 +41,30 @@ export class AuthService {
       user.password,
     );
 
-    if (!user || !isPasswordValid) {
+    if (!isPasswordValid) {
       throw new UnauthorizedException('Email ou senha incorretos.');
     }
 
     return user;
   }
 
-  async login(userData: UserLoginDto): Promise<string> {
-    const userFound = await this.validateUser(userData);
+  async login(userData: AuthLoginDto): Promise<{ access_token: string }> {
+    const userFound = await this.findUserByEmail(userData.email);
 
-    const payload: UserPayload = {
+    const isPasswordValid = await bcrypt.compare(
+      userData.password,
+      userFound.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Email ou senha incorretos.');
+    }
+
+    const payload: AuthPayloadDto = {
       sub: userFound.id,
       email: userFound.email,
     };
 
-    return this.generateJwt(payload);
+    return { access_token: await this.generateJwt(payload) };
   }
 }
