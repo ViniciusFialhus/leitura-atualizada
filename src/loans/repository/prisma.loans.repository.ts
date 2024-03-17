@@ -30,4 +30,8 @@ export class PrismaLoansRepository implements LoansRepository {
       }
     })
   }
+
+  async findLoans(): Promise<Loan[]> {
+    return await this.prismaService.loan.findMany()
+  }
 }

@@ -34,8 +34,8 @@ export class LoansService {
     }
   }
 
-  findAll() {
-    return `This action returns all loans`;
+  async findAll() {
+    return await this.loansRepository.findLoans()
   }
 
   findOne(id: number) {

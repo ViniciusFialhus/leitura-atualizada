@@ -15,6 +15,7 @@ export class LoansController {
   }
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   findAll() {
     return this.loansService.findAll();
   }
