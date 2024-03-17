@@ -42,8 +42,16 @@ export class LoansService {
     return `This action returns a #${id} loan`;
   }
 
-  update(id: number, updateLoanDto: UpdateLoanDto) {
-    return `This action updates a #${id} loan`;
+  async update(id: string, updateLoanDto: UpdateLoanDto) {
+    const loanUpdated = await this.loansRepository.updateLoan(id, updateLoanDto)
+
+    if (!loanUpdated) {
+      throw new HttpException("Erro ao atualizar o empréstimo", HttpStatus.BAD_REQUEST)
+    }
+
+    return {
+      message: "Empréstimo atualizado com sucesso"
+    }
   }
 
   remove(id: number) {
