@@ -3,5 +3,5 @@ export interface User {
   email: string;
   isAdm: boolean;
   password: string;
-  userName: string;
+  username: string;
 }
