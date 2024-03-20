@@ -13,8 +13,8 @@ model User {
   name      String     @db.VarChar(255)
   email     String     @unique
   isAdm     Boolean    @default(false)
-  password  String     @db.VarChar(32)
-  userName  String     @db.VarChar(50)
+  password  String     @db.VarChar(255)
+  username  String     @db.VarChar(50)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   Wishlist  Wishlist[]
