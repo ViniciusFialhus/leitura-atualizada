@@ -3,8 +3,11 @@ import { Loan } from '../entities/loan.entity';
 
 export class CreateLoanDto implements Loan {
   @IsUUID('all', { message: 'Must be a valid UUID' })
-  userId: String;
+  adminId: string;
 
   @IsUUID('all', { message: 'Must be a valid UUID' })
-  bookId: String;
+  userId: string;
+
+  @IsUUID('all', { message: 'Must be a valid UUID' })
+  bookId: string;
 }
