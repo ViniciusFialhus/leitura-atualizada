@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'prisma/prisma.service';
@@ -15,7 +11,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   async generateJwt(payload: AuthPayloadDto) {
     return await this.jwtService.signAsync(payload);
@@ -25,7 +21,7 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      throw new NotFoundException('Email não encontrado');
+      throw new HttpException('Email não encontrado', HttpStatus.NOT_FOUND);
     }
 
     return user;
@@ -42,7 +38,10 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Email ou senha incorretos.');
+      throw new HttpException(
+        'Email ou senha incorretos.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     return user;
@@ -50,14 +49,16 @@ export class AuthService {
 
   async login(userData: AuthLoginDto): Promise<{ access_token: string }> {
     const userFound = await this.findUserByEmail(userData.email);
-
     const isPasswordValid = await bcrypt.compare(
       userData.password,
       userFound.password,
     );
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Email ou senha incorretos.');
+      throw new HttpException(
+        'Email ou senha incorretos.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const payload: AuthPayloadDto = {

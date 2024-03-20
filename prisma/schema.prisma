@@ -5,7 +5,7 @@ generator client {
 datasource db {
   provider          = "postgres"
   url               = "postgres://ohyqtpqq:xnes1r4xQWmULhro4AtGLmDkhZLAF4zp@tuffi.db.elephantsql.com/ohyqtpqq"
-  shadowDatabaseUrl = "postgres://postgres:123456@localhost:5432"
+  shadowDatabaseUrl = "postgres://postgres:100893@localhost:5432"
 }
 
 model User {
@@ -13,7 +13,7 @@ model User {
   name      String     @db.VarChar(255)
   email     String     @unique
   isAdm     Boolean    @default(false)
-  password  String     @db.VarChar(255)
+  password  String     @db.VarChar(200)
   username  String     @db.VarChar(50)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt

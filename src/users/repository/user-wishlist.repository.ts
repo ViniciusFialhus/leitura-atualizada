@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { createWishlistDto } from '../dto/create-wishlist.dto';
-import { updateWishlistDto } from '../dto/update-user.dto';
+import { CreateWishlistDto } from '../dto/create-wishlist.dto';
+import { UpdateWishlistDto } from '../dto/update-user.dto';
 
 @Injectable()
 export class WishlistRepository {
@@ -23,7 +23,7 @@ export class WishlistRepository {
   async findShareLink(id: string) {
     return await this.prisma.wishlist.findUnique({
       where: { id: id },
-      select: { shareLink: true } 
+      select: { shareLink: true },
     });
   }
 }
