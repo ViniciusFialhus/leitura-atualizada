@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { BooksController } from './books.controller';
 import { HttpModule } from '@nestjs/axios';
+import { BooksRepository } from './repository/books.repository';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { HttpModule } from '@nestjs/axios';
     })
   ],
   controllers: [BooksController],
-  providers: [BooksService],
+  providers: [BooksService, BooksRepository],
 })
 export class BooksModule { }
