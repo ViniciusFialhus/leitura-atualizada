@@ -22,7 +22,7 @@ export class UsersController {
 
   @Get('/profile')
   findProfile() {
-    return this.usersService.findAllUser();
+    return this.usersService.findAllUsers();
   }
 
   @Put('/profile/:id')

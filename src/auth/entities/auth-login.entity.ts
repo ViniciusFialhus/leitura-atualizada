@@ -4,4 +4,5 @@ export interface AuthLogin {
   id?: string;
   sub?: string;
   username: string;
+  isAdm: boolean;
 }

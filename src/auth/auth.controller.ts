@@ -16,7 +16,7 @@ import { GoogleOauthGuard } from './guards/google-oauth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -26,14 +26,14 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleOauthGuard)
-  async auth() { }
+  async auth() {}
 
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
   async googleAuthCallback(@Req() req, @Res() res: Response) {
-    const token = await this.authService.login(req.user);
+    const token = await this.authService.googleLogin(req.user);
 
-    res.cookie('access_token', token.access_token, {
+    res.cookie('access_token', token.accessToken, {
       maxAge: 2592000000,
       sameSite: true,
       secure: false,

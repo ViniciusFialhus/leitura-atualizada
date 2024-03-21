@@ -6,7 +6,4 @@ export class AuthLoginDto implements Partial<AuthLogin> {
 
   @IsString()
   password: string;
-
-  @IsString()
-  username?: string;
 }
