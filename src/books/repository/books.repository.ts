@@ -13,19 +13,28 @@ export class BooksRepository {
         const { isbn } = createBookDto
         const bookInfo = await this.httpSevice.axiosRef.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
 
+        let image: string = bookInfo.data.items[0].volumeInfo.imageLinks
+
+        if (image === undefined) {
+            image = null
+        } else {
+            image = bookInfo.data.items[0].volumeInfo.imageLinks.smallThumbnail
+        }
+
         const newbook: Book = {
-            title: bookInfo.data.items[0].volumeInfo.tittle,
-            author: bookInfo.data.items[0].volumeInfo.authors[0],
-            genre: bookInfo.data.items[0].volumeInfo.categories[0],
-            description: bookInfo.data.items[0].searchInfo.textSnippet,
-            isbn: bookInfo.data.items[0].volumeInfo.industryIdentifiers[0].identifier,
-            publishedAt: bookInfo.data.items[0].volumeInfo.publishedDate,
-            imageUrl: bookInfo.data.items[0].volumeInfo.readingModes.image
+            title: bookInfo.data.items[0].volumeInfo.title || null,
+            author: bookInfo.data.items[0].volumeInfo.authors[0] || null,
+            genre: bookInfo.data.items[0].volumeInfo.categories[0] || null,
+            description: bookInfo.data.items[0].volumeInfo.description || null,
+            isbn: bookInfo.data.items[0].volumeInfo.industryIdentifiers[0].identifier || null,
+            publishedAt: isbn || null,
+            imgUrl: image || null
         }
 
         return this.prisma.book.create({
             data: newbook
         })
+
     }
 
     findAllBooks() {
@@ -33,21 +42,27 @@ export class BooksRepository {
     }
 
     searchBook(q: Book) {
-        if (!q.title) {
+        if (!q.title && !q.genre) {
             return this.prisma.book.findMany({
                 where: {
                     author: q.author
                 }
             })
         }
-        if (!q.author) {
+        if (!q.author && !q.genre) {
             return this.prisma.book.findMany({
                 where: {
                     title: q.title
                 }
             })
         }
-
+        if (!q.author && !q.title) {
+            return this.prisma.book.findMany({
+                where: {
+                    genre: q.genre
+                }
+            })
+        }
     }
 
     findOneBook(id: string) {
@@ -69,6 +84,14 @@ export class BooksRepository {
         return this.prisma.book.delete({
             where: {
                 id
+            }
+        })
+    }
+
+    findBookIsbn(isbn: string) {
+        return this.prisma.book.findMany({
+            where: {
+                isbn
             }
         })
     }
