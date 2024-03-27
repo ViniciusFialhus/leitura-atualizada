@@ -4,8 +4,8 @@ generator client {
 
 datasource db {
   provider          = "postgres"
-  url               = "postgres://ohyqtpqq:xnes1r4xQWmULhro4AtGLmDkhZLAF4zp@tuffi.db.elephantsql.com/ohyqtpqq"
-  shadowDatabaseUrl = "postgres://postgres:100893@localhost:5432"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model User {
@@ -18,6 +18,7 @@ model User {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   Wishlist  Wishlist[]
+  Loan      Loan[]
 
   @@map("users")
 }
@@ -34,16 +35,39 @@ model Book {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   Wishlist    Wishlist[]
+  Loan        Loan[]
 
-  @@map("book")
+  @@map("books")
+}
+
+model Loan {
+  id         String     @id @default(uuid())
+  user       User       @relation(fields: [userId], references: [id])
+  book       Book       @relation(fields: [bookId], references: [id])
+  userId     String
+  bookId     String
+  pickupDate DateTime   @default(now())
+  dueDate    DateTime
+  status     LoanStatus @default(PENDING)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@map("loans")
+}
+
+enum LoanStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  OVERDUE
 }
 
 model Wishlist {
   id     String @id @default(uuid())
   userId String
-  user   User   @relation(fields: [userId], references: [id])
   bookId String
   book   Book   @relation(fields: [bookId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
 
   @@map("wishlist")
 }
