@@ -9,7 +9,7 @@ export class PrismaLoansRepository implements LoansRepository {
   constructor(private prismaService: PrismaService) { }
 
   async createLoan(createLoan: CreateLoan): Promise<Loan> {
-    const loanCreated = this.prismaService.loan.create({
+    const loanCreated = await this.prismaService.loan.create({
       data: createLoan
     })
 
@@ -17,7 +17,7 @@ export class PrismaLoansRepository implements LoansRepository {
   }
 
   async findBook(bookId: string): Promise<Book> {
-    return this.prismaService.book.findUnique({
+    return await this.prismaService.book.findUnique({
       where: {
         id: bookId
       }
@@ -25,7 +25,7 @@ export class PrismaLoansRepository implements LoansRepository {
   }
 
   async findUser(userId: string): Promise<User> {
-    return this.prismaService.user.findUnique({
+    return await this.prismaService.user.findUnique({
       where: {
         id: userId
       }

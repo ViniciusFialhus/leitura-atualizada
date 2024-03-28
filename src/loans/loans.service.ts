@@ -24,7 +24,7 @@ export class LoansService {
       userId: userExists.id,
       createdAt: new Date(),
       pickupDate: new Date(),
-      dueTime: addDays(new Date, 3)
+      dueDate: addDays(new Date, 3)
     }
     const loan = await this.loansRepository.createLoan(loanCreated)
 
