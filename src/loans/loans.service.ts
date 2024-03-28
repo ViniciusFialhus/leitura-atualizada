@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { addDays } from 'date-fns';
+import { addDays, isSaturday, isSunday } from 'date-fns';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
 import { LoansRepository } from './repository/loans-repository';
@@ -11,6 +11,7 @@ export class LoansService {
   async create(createLoanDto: CreateLoanDto) {
     const isBookExist = await this.loansRepository.findBook(createLoanDto.bookId as string)
     const userExists = await this.loansRepository.findUser(createLoanDto.userId as string)
+    let _dueDate: Date
 
     if (!isBookExist) {
       throw new HttpException('Livro não encontrado', HttpStatus.NOT_FOUND);
@@ -19,13 +20,23 @@ export class LoansService {
     if (!userExists) {
       throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
     }
+
+    if (isSaturday(addDays(new Date(), 3))) {
+      _dueDate = addDays(new Date(), 5)
+    }
+
+    if (isSunday(addDays(new Date(), 3))) {
+      _dueDate = addDays(new Date(), 4)
+    }
+
     const loanCreated = {
       bookId: isBookExist.id,
       userId: userExists.id,
       createdAt: new Date(),
       pickupDate: new Date(),
-      dueDate: addDays(new Date, 3)
+      dueDate: _dueDate
     }
+
     const loan = await this.loansRepository.createLoan(loanCreated)
 
     return {
