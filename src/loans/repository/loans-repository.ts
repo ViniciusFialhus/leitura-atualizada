@@ -1,13 +1,6 @@
 import { Book, Loan, User } from "@prisma/client";
 import { UpdateLoanDto } from "../dto/update-loan.dto";
-
-export interface CreateLoan {
-  bookId: string;
-  userId: string;
-  createdAt: Date;
-  pickupDate: Date;
-  dueTime: Date
-}
+import { CreateLoan } from "../models/CreateLoan";
 
 export abstract class LoansRepository {
   abstract createLoan(createLoan: CreateLoan): Promise<Loan>
