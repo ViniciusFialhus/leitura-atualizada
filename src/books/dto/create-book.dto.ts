@@ -31,7 +31,7 @@ export class CreateBookDto implements Book {
   @IsNotEmpty({ message: 'Can`t be empty' })
   @IsString({ message: 'Must be a String' })
   @IsUrl(undefined, { message: 'Must be a valid URL' })
-  imageUrl: string;
+  imgUrl: string;
 
   @IsOptional()
   @IsString({ message: 'Must be a String' })
@@ -46,5 +46,5 @@ export class CreateBookDto implements Book {
   @IsOptional()
   @IsString({ message: 'Must be a String' })
   @IsDate({ message: 'Must`ve a valid JS Date format' })
-  publishedAt: Date;
+  publishedAt: string;
 }

@@ -3,6 +3,7 @@ import { BooksService } from './books.service';
 import { BooksController } from './books.controller';
 import { HttpModule } from '@nestjs/axios';
 import { BooksRepository } from './repository/books.repository';
+import { PrismaService } from 'prisma/prisma.service';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { BooksRepository } from './repository/books.repository';
     })
   ],
   controllers: [BooksController],
-  providers: [BooksService, BooksRepository],
+  providers: [BooksService, BooksRepository, PrismaService],
 })
 export class BooksModule { }

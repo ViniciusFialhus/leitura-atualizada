@@ -1,9 +1,9 @@
 export interface Book {
-  title: string;
-  author: string;
+  title?: string;
+  author?: string;
   genre?: string;
   description?: string;
-  isbn: string;
-  publishedAt?: Date;
-  imageUrl: string;
+  isbn?: string;
+  publishedAt?: string;
+  imgUrl?: string;
 }
