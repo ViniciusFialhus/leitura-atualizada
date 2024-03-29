@@ -6,14 +6,13 @@ import { CreateWishlistDto } from '../dto/create-wishlist.dto';
 export class WishlistRepository {
   constructor(private prisma: PrismaService) { }
 
-  async findWishlist(id: string) {
-    return await this.prisma.wishlist.findUnique({
+  async findWishUser(userId: string) {
+    return await this.prisma.wishlist.findMany({
       where: {
-        id
+        userId
       }
     })
   }
-
 
   // async createWishlistingBooks(createWishlistDto: CreateWishlistDto) {
   //   return await this.prisma.wishlist.create({
@@ -23,6 +22,14 @@ export class WishlistRepository {
 
   async removeWishlistingBooks(id: string) {
     return await this.prisma.wishlist.delete({
+      where: {
+        id
+      }
+    })
+  }
+
+  async findWishlist(id: string) {
+    return await this.prisma.wishlist.findUnique({
       where: {
         id
       }

@@ -12,9 +12,8 @@ export class UsersService {
   constructor(private readonly userRepository: UserRepository, private wishlistRepository: WishlistRepository) { }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    const existingUser = await this.userRepository.findUnique(
-      createUserDto.email,
-    );
+    const existingUser = await this.userRepository.findUserEmail(createUserDto.email)
+
     if (existingUser) {
       throw new HttpException('Usuario já existente', HttpStatus.BAD_REQUEST);
     }
@@ -28,17 +27,22 @@ export class UsersService {
   }
 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
-    const existingUser = await this.userRepository.findUnique(
-      updateUserDto.email,
-    );
+    const existingUser = await this.userRepository.findUserEmail(updateUserDto.email)
+
     if (!existingUser) {
       throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
     }
     return await this.userRepository.updateUser(id, updateUserDto);
   }
 
-  async findUserWishlist(id: string) {
-    return await this.wishlistRepository.findWishlist(id);
+  async findUserWishlist(userId: string, createUserDto: CreateUserDto) {
+    const existingUser = await this.userRepository.findUserEmail(createUserDto.email)
+
+    if (!existingUser) {
+      throw new HttpException('Usuario não existente', HttpStatus.BAD_REQUEST);
+    }
+
+    return await this.wishlistRepository.findWishUser(userId);
   }
 
   // async createWishlist(createWishlistDto: CreateWishlistDto) {
@@ -46,6 +50,12 @@ export class UsersService {
   // }
 
   async removeWishlistingBooks(id: string) {
+    const userWishlist = this.wishlistRepository.findWishlist(id)
+
+    if (!userWishlist) {
+      throw new HttpException('Esse item não consta nessa lista', HttpStatus.BAD_REQUEST);
+    }
+
     return this.wishlistRepository.removeWishlistingBooks(id);
   }
 

@@ -31,8 +31,8 @@ export class UsersController {
   }
 
   @Get('/wishlist/:id')
-  findWishlist(@Param('id') id: string) {
-    return this.usersService.findUserWishlist(id);
+  findWishlist(@Param('id') userId: string, createUserDto: CreateUserDto) {
+    return this.usersService.findUserWishlist(userId, createUserDto);
   }
 
   // @Post('/wishlist')
