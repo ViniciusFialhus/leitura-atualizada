@@ -1,98 +1,104 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "prisma/prisma.service";
-import { CreateBookDto } from "../dto/create-book.dto";
-import { Book } from "../entities/book.entity";
-import { HttpService } from "@nestjs/axios";
-import { UpdateBookDto } from "../dto/update-book.dto";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'prisma/prisma.service';
+import { CreateBookDto } from '../dto/create-book.dto';
+import { Book } from '../entities/book.entity';
+import { HttpService } from '@nestjs/axios';
+import { UpdateBookDto } from '../dto/update-book.dto';
 
 @Injectable()
 export class BooksRepository {
-    constructor(private prisma: PrismaService, private httpSevice: HttpService) { }
+  constructor(
+    private prisma: PrismaService,
+    private httpSevice: HttpService,
+  ) {}
 
-    async createBook(createBookDto: CreateBookDto) {
-        const { isbn } = createBookDto
-        const bookInfo = await this.httpSevice.axiosRef.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
+  async createBook(createBookDto: CreateBookDto) {
+    const { isbn } = createBookDto;
+    const bookInfo = await this.httpSevice.axiosRef.get(
+      `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`,
+    );
 
-        let image: string = bookInfo.data.items[0].volumeInfo.imageLinks
+    let image: string = bookInfo.data.items[0].volumeInfo.imageLinks;
 
-        if (image === undefined) {
-            image = null
-        } else {
-            image = bookInfo.data.items[0].volumeInfo.imageLinks.smallThumbnail
-        }
-
-        const newbook: Book = {
-            title: bookInfo.data.items[0].volumeInfo.title || null,
-            author: bookInfo.data.items[0].volumeInfo.authors[0] || null,
-            genre: bookInfo.data.items[0].volumeInfo.categories[0] || null,
-            description: bookInfo.data.items[0].volumeInfo.description || null,
-            isbn: bookInfo.data.items[0].volumeInfo.industryIdentifiers[0].identifier || null,
-            publishedAt: isbn || null,
-            imgUrl: image || null
-        }
-
-        return this.prisma.book.create({
-            data: newbook
-        })
-
+    if (image === undefined) {
+      image = null;
+    } else {
+      image = bookInfo.data.items[0].volumeInfo.imageLinks.smallThumbnail;
     }
 
-    findAllBooks() {
-        return this.prisma.book.findMany()
-    }
+    const newbook: Book = {
+      title: bookInfo.data.items[0].volumeInfo.title || null,
+      author: bookInfo.data.items[0].volumeInfo.authors[0] || null,
+      genre: bookInfo.data.items[0].volumeInfo.categories[0] || null,
+      description: bookInfo.data.items[0].volumeInfo.description || null,
+      isbn:
+        bookInfo.data.items[0].volumeInfo.industryIdentifiers[0].identifier ||
+        null,
+      publishedAt: isbn || null,
+      imgUrl: image || null,
+    };
 
-    searchBook(q: Book) {
-        if (!q.title && !q.genre) {
-            return this.prisma.book.findMany({
-                where: {
-                    author: q.author
-                }
-            })
-        }
-        if (!q.author && !q.genre) {
-            return this.prisma.book.findMany({
-                where: {
-                    title: q.title
-                }
-            })
-        }
-        if (!q.author && !q.title) {
-            return this.prisma.book.findMany({
-                where: {
-                    genre: q.genre
-                }
-            })
-        }
-    }
+    return this.prisma.book.create({
+      data: newbook,
+    });
+  }
 
-    findOneBook(id: string) {
-        return this.prisma.book.findUnique({
-            where: {
-                id
-            }
-        });
-    }
+  findAllBooks() {
+    return this.prisma.book.findMany();
+  }
 
-    updateBook(id: string, updateBookDto: UpdateBookDto) {
-        return this.prisma.book.update({
-            where: { id },
-            data: updateBookDto
-        })
+  searchBook(q: Book) {
+    if (!q.title && !q.genre) {
+      return this.prisma.book.findMany({
+        where: {
+          author: q.author,
+        },
+      });
     }
+    if (!q.author && !q.genre) {
+      return this.prisma.book.findMany({
+        where: {
+          title: q.title,
+        },
+      });
+    }
+    if (!q.author && !q.title) {
+      return this.prisma.book.findMany({
+        where: {
+          genre: q.genre,
+        },
+      });
+    }
+  }
 
-    removeBook(id: string) {
-        return this.prisma.book.delete({
-            where: {
-                id
-            }
-        })
-    }
+  findOneBook(id: string) {
+    return this.prisma.book.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
 
-    findBookIsbn(isbn: string) {
-        return this.prisma.book.findMany({
-            where: {
-                isbn
-            }
-        })
-    }
+  updateBook(id: string, updateBookDto: UpdateBookDto) {
+    return this.prisma.book.update({
+      where: { id },
+      data: updateBookDto,
+    });
+  }
+
+  removeBook(id: string) {
+    return this.prisma.book.delete({
+      where: {
+        id,
+      },
+    });
+  }
+
+  findBookIsbn(isbn: string) {
+    return this.prisma.book.findMany({
+      where: {
+        isbn,
+      },
+    });
+  }
 }

@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { GoogleStrategy } from './strategies/google.strategy';
+import { GoogleOAuthStrategy } from './strategies/google-oauth.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
 import { PrismaService } from 'prisma/prisma.service';
 import { UsersModule } from 'src/users/users.module';
+import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import { GoogleRefreshStrategy } from './strategies/google-refresh.strategy';
 
 @Module({
   exports: [AuthService],
@@ -14,11 +16,17 @@ import { UsersModule } from 'src/users/users.module';
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '8h' },
     }),
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleStrategy, JwtStrategy, PrismaService],
+  providers: [
+    AuthService,
+    GoogleOAuthStrategy,
+    GoogleRefreshStrategy,
+    JwtAccessStrategy,
+    JwtRefreshStrategy,
+    PrismaService,
+  ],
 })
 export class AuthModule {}

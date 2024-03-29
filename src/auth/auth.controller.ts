@@ -9,10 +9,12 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { AuthLoginDto } from './dtos/auth-login.dto';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
+import { AuthenticatedUserGuard } from './guards/authenticated-user.guard';
+import { RefreshTokenGuard } from './guards/jwt-refresh.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -30,15 +32,37 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
+  @HttpCode(HttpStatus.OK)
   async googleAuthCallback(@Req() req, @Res() res: Response) {
-    const token = await this.authService.googleLogin(req.user);
+    console.log(req.cookies);
+    const googleToken = req.user.accessToken;
+    const googleRefreshToken = req.user.refreshToken;
 
-    res.cookie('access_token', token.accessToken, {
-      maxAge: 2592000000,
-      sameSite: true,
-      secure: false,
+    res.cookie('access_token', googleToken, { httpOnly: true });
+    res.cookie('refresh_token', googleRefreshToken, {
+      httpOnly: true,
     });
 
-    return res.status(HttpStatus.OK);
+    res.redirect('http://localhost:3000/auth/teste');
+    return await this.authService.googleLogin(req.user);
+  }
+  @UseGuards(RefreshTokenGuard)
+  @Get('refresh')
+  refreshTokens(@Req() req: Request) {
+    const userEmail = req.user['email'];
+    const refreshToken = req.user['refreshToken'];
+    return this.authService.refreshTokens(userEmail, refreshToken);
+  }
+
+  @UseGuards(AuthenticatedUserGuard)
+  @Post('logout')
+  logout(@Req() req: Request, @Res() res: Response) {
+    const refreshToken = req.cookies['refresh_token'];
+    const userEmail = req.user['email'];
+
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+
+    this.authService.logout(userEmail, refreshToken);
   }
 }

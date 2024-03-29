@@ -17,7 +17,7 @@ model User {
   username     String     @db.VarChar(50)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-  refreshToken String?    @db.VarChar(200)
+  refreshToken String?
   Wishlist     Wishlist[]
   Loan         Loan[]
 

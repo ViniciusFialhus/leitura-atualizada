@@ -9,11 +9,17 @@ import { UserRepository } from './repository/user.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly userRepository: UserRepository, private wishlistRepository: WishlistRepository) { }
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly wishlistRepository: WishlistRepository,
+  ) {}
+
+  async findByEmail(email: string) {
+    return await this.userRepository.findUnique(email);
+  }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    const existingUser = await this.userRepository.findUserEmail(createUserDto.email)
-
+    const existingUser = await this.findByEmail(createUserDto.email);
     if (existingUser) {
       throw new HttpException('Usuario já existente', HttpStatus.BAD_REQUEST);
     }
@@ -26,17 +32,16 @@ export class UsersService {
     return this.userRepository.findAllUser();
   }
 
-  async updateUser(id: string, updateUserDto: UpdateUserDto) {
-    const existingUser = await this.userRepository.findUserEmail(updateUserDto.email)
-
+  async updateUser(email: string, updateUserDto: UpdateUserDto) {
+    const existingUser = await this.findByEmail(email);
     if (!existingUser) {
       throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
     }
-    return await this.userRepository.updateUser(id, updateUserDto);
+    return await this.userRepository.updateUser(existingUser.id, updateUserDto);
   }
 
   async findUserWishlist(userId: string, createUserDto: CreateUserDto) {
-    const existingUser = await this.userRepository.findUserEmail(createUserDto.email)
+    const existingUser = await this.findByEmail(createUserDto.email);
 
     if (!existingUser) {
       throw new HttpException('Usuario não existente', HttpStatus.BAD_REQUEST);
@@ -50,10 +55,13 @@ export class UsersService {
   // }
 
   async removeWishlistingBooks(id: string) {
-    const userWishlist = this.wishlistRepository.findWishlist(id)
+    const userWishlist = this.wishlistRepository.findWishlist(id);
 
     if (!userWishlist) {
-      throw new HttpException('Esse item não consta nessa lista', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Esse item não consta nessa lista',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     return this.wishlistRepository.removeWishlistingBooks(id);
