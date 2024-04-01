@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Req } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'prisma/prisma.service';
@@ -8,6 +8,7 @@ import { AuthLogin as UserCredentials } from './entities/auth-login.entity';
 import { AuthGoogleDto } from './dtos/auth-google.dto';
 import { UsersService } from 'src/users/users.service';
 import axios from 'axios';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -88,8 +89,9 @@ export class AuthService {
     return tokens;
   }
 
-  async decryptToken(token: any) {
-    const tokenData = this.jwtService.verifyAsync(token);
+  async decryptToken(req: Request) {
+    const bearerToken = req.get('Authorization').replace('Bearer', '').trim();
+    const tokenData = this.jwtService.verifyAsync(bearerToken);
 
     return tokenData;
   }
