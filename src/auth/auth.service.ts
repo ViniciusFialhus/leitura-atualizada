@@ -88,6 +88,12 @@ export class AuthService {
     return tokens;
   }
 
+  async decryptToken(token: any) {
+    const tokenData = this.jwtService.verifyAsync(token);
+
+    return tokenData;
+  }
+
   async googleLogin(userData: AuthGoogleDto) {
     const userFound = await this.prisma.user.findUnique({
       where: { email: userData.email },
