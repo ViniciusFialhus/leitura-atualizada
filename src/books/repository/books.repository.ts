@@ -5,12 +5,14 @@ import { Book } from '../entities/book.entity';
 import { HttpService } from '@nestjs/axios';
 import { UpdateBookDto } from '../dto/update-book.dto';
 
+
+
 @Injectable()
 export class BooksRepository {
   constructor(
     private prisma: PrismaService,
     private httpSevice: HttpService,
-  ) {}
+  ) { }
 
   async createBook(createBookDto: CreateBookDto) {
     const { isbn } = createBookDto;
@@ -19,6 +21,7 @@ export class BooksRepository {
     );
 
     let image: string = bookInfo.data.items[0].volumeInfo.imageLinks;
+    const ano: Date = new Date(bookInfo.data.items[0].volumeInfo.publishedDate)
 
     if (image === undefined) {
       image = null;
@@ -26,15 +29,13 @@ export class BooksRepository {
       image = bookInfo.data.items[0].volumeInfo.imageLinks.smallThumbnail;
     }
 
-    const newbook: Book = {
-      title: bookInfo.data.items[0].volumeInfo.title || null,
-      author: bookInfo.data.items[0].volumeInfo.authors[0] || null,
-      genre: bookInfo.data.items[0].volumeInfo.categories[0] || null,
+    const newbook: CreateBookDto = {
+      title: bookInfo.data.items[0].volumeInfo.title,
+      author: bookInfo.data.items[0].volumeInfo.authors[0],
+      genre: bookInfo.data.items[0].volumeInfo.categories[0],
       description: bookInfo.data.items[0].volumeInfo.description || null,
-      isbn:
-        bookInfo.data.items[0].volumeInfo.industryIdentifiers[0].identifier ||
-        null,
-      publishedAt: isbn || null,
+      isbn: isbn,
+      publishedAt: ano || null,
       imgUrl: image || null,
     };
 
@@ -72,7 +73,7 @@ export class BooksRepository {
   }
 
   findOneBook(id: string) {
-    return this.prisma.book.findUnique({
+    return this.prisma.book.findUniqueOrThrow({
       where: {
         id,
       },
@@ -94,11 +95,11 @@ export class BooksRepository {
     });
   }
 
-  findBookIsbn(isbn: string) {
-    return this.prisma.book.findMany({
-      where: {
-        isbn,
-      },
-    });
-  }
+  // findBookIsbn(isbn: string) {
+  //     return this.prisma.book.findu({
+  //         where: {
+  //             isbn,
+  //         },
+  //     });
+  // }
 }

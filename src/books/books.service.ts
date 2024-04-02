@@ -9,11 +9,6 @@ export class BooksService {
   constructor(private readonly BooksRepository: BooksRepository) { }
 
   async create(createBookDto: CreateBookDto) {
-    const book = this.BooksRepository.findBookIsbn(createBookDto.isbn)
-
-    if (book) {
-      throw new HttpException('este livro ja esta cadastrado', HttpStatus.BAD_GATEWAY)
-    }
     return this.BooksRepository.createBook(createBookDto)
   }
 

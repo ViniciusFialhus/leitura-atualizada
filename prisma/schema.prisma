@@ -28,10 +28,10 @@ model Book {
   id          String     @id @default(uuid())
   title       String     @db.VarChar(100)
   author      String     @db.VarChar(100)
-  genre       String?    @db.VarChar(20)
-  description String?    @db.VarChar(255)
+  genre       String     @db.VarChar(20)
+  description String?    @db.VarChar(5000)
   isbn        String     @db.VarChar(13)
-  imgUrl      String     @db.VarChar(3000)
+  imgUrl      String?    @db.VarChar(200)
   publishedAt DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt

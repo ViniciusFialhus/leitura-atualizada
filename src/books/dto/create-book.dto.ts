@@ -46,5 +46,5 @@ export class CreateBookDto implements Book {
   @IsOptional()
   @IsString({ message: 'Must be a String' })
   @IsDate({ message: 'Must`ve a valid JS Date format' })
-  publishedAt: string;
+  publishedAt: Date;
 }
