@@ -48,21 +48,24 @@ export class AuthController {
   }
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
-  refreshTokens(@Req() req: Request) {
+  async refreshTokens(@Req() req: Request) {
     const userEmail = req.user['email'];
     const refreshToken = req.user['refreshToken'];
-    return this.authService.refreshTokens(userEmail, refreshToken);
+    return await this.authService.refreshTokens(userEmail, refreshToken);
   }
 
   @UseGuards(AuthenticatedUserGuard)
   @Post('logout')
-  logout(@Req() req: Request, @Res() res: Response) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(@Req() req: Request, @Res() res: Response) {
     const refreshToken = req.cookies['refresh_token'];
     const userEmail = req.user['email'];
 
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
 
-    this.authService.logout(userEmail, refreshToken);
+    await this.authService.logout(userEmail, refreshToken);
+
+    res.end();
   }
 }

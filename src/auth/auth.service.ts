@@ -165,10 +165,14 @@ export class AuthService {
   }
 
   async logout(userEmail: string, refreshToken: string) {
-    if (userEmail) await this.updateRefreshToken(userEmail, null);
-    if (refreshToken) await this.revokeGoogleToken(refreshToken);
-    return;
+    if (userEmail) {
+      return await this.updateRefreshToken(userEmail, null);
+    }
+    if (refreshToken) {
+      return await this.revokeGoogleToken(refreshToken);
+    }
   }
+
   async revokeGoogleToken(token: string) {
     try {
       await axios.get(

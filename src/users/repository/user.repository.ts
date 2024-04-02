@@ -36,11 +36,14 @@ export class UserRepository {
         ...updateUserDto,
         password: await bcrypt.hash(updateUserDto.password, 10),
       };
-
       return await this.prisma.user.update({
         where: { id },
         data: protectedUserData,
       });
     }
+    return await this.prisma.user.update({
+      where: { id },
+      data: updateUserDto,
+    });
   }
 }
