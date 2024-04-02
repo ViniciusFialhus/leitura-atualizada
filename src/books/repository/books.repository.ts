@@ -95,11 +95,12 @@ export class BooksRepository {
     });
   }
 
-  // findBookIsbn(isbn: string) {
-  //     return this.prisma.book.findu({
-  //         where: {
-  //             isbn,
-  //         },
-  //     });
-  // }
+  findBookIsbn(isbn: Book) {
+
+    return this.prisma.book.findUniqueOrThrow({
+      where: {
+        isbn,
+      },
+    });
+  }
 }
