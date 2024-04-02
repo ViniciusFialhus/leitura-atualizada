@@ -11,8 +11,8 @@ export class LoansController {
 
   @Post()
   @HttpCode(HttpStatus.OK)
-  create(@Body() createLoanDto: CreateLoanDto) {
-    return this.loansService.create(createLoanDto);
+  create(@Body() createLoanDto: CreateLoanDto, @Req() req: Request) {
+    return this.loansService.create(createLoanDto, req);
   }
 
   @Get()

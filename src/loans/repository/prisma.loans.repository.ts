@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Book, Loan, User } from '@prisma/client';
+import { Book, Loan } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { UpdateLoanDto } from '../dto/update-loan.dto';
 import { CreateLoan } from '../models/CreateLoan';
@@ -21,14 +21,6 @@ export class PrismaLoansRepository implements LoansRepository {
     return await this.prismaService.book.findUnique({
       where: {
         id: bookId,
-      },
-    });
-  }
-
-  async findUser(userId: string): Promise<User> {
-    return await this.prismaService.user.findUnique({
-      where: {
-        id: userId,
       },
     });
   }

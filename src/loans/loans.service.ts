@@ -11,9 +11,10 @@ import { LoansRepository } from './repository/loans-repository';
 export class LoansService {
   constructor(private loansRepository: LoansRepository, private authService: AuthService, private userService: UsersService) { }
 
-  async create(createLoanDto: CreateLoanDto) {
+  async create(createLoanDto: CreateLoanDto, req: Request) {
     const isBookExist = await this.loansRepository.findBook(createLoanDto.bookId)
-    const userExists = await this.loansRepository.findUser(createLoanDto.userId as string)
+    const data = await this.authService.decryptToken(req)
+    const userExists = await this.userService.findByEmail(data.emil)
     let _dueDate: Date
 
     if (!isBookExist) {
@@ -43,8 +44,8 @@ export class LoansService {
     const loan = await this.loansRepository.createLoan(loanCreated)
 
     return {
-      message: "Emprestimo solicitado com sucesso",
-      Loan: loan
+      bookId: loan.bookId,
+      pickupDate: loan.pickupDate
     }
   }
 
