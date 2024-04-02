@@ -9,9 +9,9 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) { }
 
   @Post()
-  // createBook(@Body() createBookDto: CreateBookDto) {
-  //   return this.booksService.create(createBookDto)
-  // }
+  createBook(@Body() createBookDto: CreateBookDto) {
+    return this.booksService.create(createBookDto)
+  }
 
   @Get()
   findAllBook() {
@@ -29,9 +29,9 @@ export class BooksController {
   }
 
   @Patch(':id')
-  // updateBook(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
-  //   return this.booksService.update(id, updateBookDto)
-  // }
+  updateBook(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
+    return this.booksService.update(id, updateBookDto)
+  }
 
   @Delete(':id')
   removeBook(@Param('id') id: string) {

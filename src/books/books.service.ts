@@ -8,9 +8,9 @@ import { BooksRepository } from './repository/books.repository';
 export class BooksService {
   constructor(private readonly BooksRepository: BooksRepository) { }
 
-  // async create(createBookDto: CreateBookDto) {
-  //   return this.BooksRepository.createBook(createBookDto)
-  // }
+  async create(createBookDto: CreateBookDto) {
+    return this.BooksRepository.createBook(createBookDto)
+  }
 
   findAll() {
     return this.BooksRepository.findAllBooks()
@@ -35,16 +35,16 @@ export class BooksService {
     return this.BooksRepository.findOneBook(id)
   }
 
-  // update(id: string, updateBookDto: UpdateBookDto) {
+  update(id: string, updateBookDto: UpdateBookDto) {
 
-  //   const book = this.BooksRepository.findOneBook(id)
+    const book = this.BooksRepository.findOneBook(id)
 
-  //   if (!book) {
-  //     throw new HttpException('Este livro não esta cadastrado', HttpStatus.BAD_REQUEST)
-  //   }
+    if (!book) {
+      throw new HttpException('Este livro não esta cadastrado', HttpStatus.BAD_REQUEST)
+    }
 
-  //   return this.BooksRepository.updateBook(id, updateBookDto)
-  // }
+    return this.BooksRepository.updateBook(id, updateBookDto)
+  }
 
   remove(id: string) {
     const book = this.BooksRepository.findOneBook(id)

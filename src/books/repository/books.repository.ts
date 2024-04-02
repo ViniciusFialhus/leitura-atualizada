@@ -14,35 +14,35 @@ export class BooksRepository {
     private httpSevice: HttpService,
   ) { }
 
-  // async createBook(createBookDto: CreateBookDto) {
-  //   const { isbn } = createBookDto;
-  //   const bookInfo = await this.httpSevice.axiosRef.get(
-  //     `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`,
-  //   );
+  async createBook(createBookDto: CreateBookDto) {
+    const { isbn } = createBookDto;
+    const bookInfo = await this.httpSevice.axiosRef.get(
+      `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`,
+    );
 
-  //   let image: string = bookInfo.data.items[0].volumeInfo.imageLinks;
-  //   const ano: Date = new Date(bookInfo.data.items[0].volumeInfo.publishedDate)
+    let image: string = bookInfo.data.items[0].volumeInfo.imageLinks;
+    const ano: Date = new Date(bookInfo.data.items[0].volumeInfo.publishedDate)
 
-  //   if (image === undefined) {
-  //     image = null;
-  //   } else {
-  //     image = bookInfo.data.items[0].volumeInfo.imageLinks.smallThumbnail;
-  //   }
+    if (image === undefined) {
+      image = null;
+    } else {
+      image = bookInfo.data.items[0].volumeInfo.imageLinks.smallThumbnail;
+    }
 
-  //   const newbook: Book = {
-  //     title: bookInfo.data.items[0].volumeInfo.title,
-  //     author: bookInfo.data.items[0].volumeInfo.authors[0],
-  //     genre: bookInfo.data.items[0].volumeInfo.categories[0],
-  //     description: bookInfo.data.items[0].volumeInfo.description || null,
-  //     isbn: isbn,
-  //     publishedAt: ano || null,
-  //     imgUrl: image || null,
-  //   };
+    const newbook: Book = {
+      title: bookInfo.data.items[0].volumeInfo.title,
+      author: bookInfo.data.items[0].volumeInfo.authors[0],
+      genre: bookInfo.data.items[0].volumeInfo.categories[0],
+      description: bookInfo.data.items[0].volumeInfo.description || null,
+      isbn: isbn,
+      publishedAt: ano || null,
+      imgUrl: image || null,
+    };
 
-  //   return this.prisma.book.create({
-  //     data: newbook,
-  //   });
-  // }
+    return this.prisma.book.create({
+      data: newbook,
+    });
+  }
 
   findAllBooks() {
     return this.prisma.book.findMany();
@@ -80,12 +80,12 @@ export class BooksRepository {
     });
   }
 
-  // updateBook(id: string, updateBookDto: UpdateBookDto) {
-  //   return this.prisma.book.update({
-  //     where: { id },
-  //     data: updateBookDto,
-  //   });
-  // }
+  updateBook(id: string, updateBookDto: UpdateBookDto) {
+    return this.prisma.book.update({
+      where: { id },
+      data: updateBookDto,
+    });
+  }
 
   removeBook(id: string) {
     return this.prisma.book.delete({
