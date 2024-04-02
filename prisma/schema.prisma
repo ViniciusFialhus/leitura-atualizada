@@ -28,9 +28,9 @@ model Book {
   id          String     @id @default(uuid())
   title       String     @db.VarChar(100)
   author      String     @db.VarChar(100)
-  genre       String     @db.VarChar(20)
-  description String?    @db.VarChar(5000)
-  isbn        String     @db.VarChar(13)
+  genre       String     @db.VarChar(100)
+  description String?    @db.VarChar(10000)
+  isbn        String     @unique @db.VarChar(20)
   imgUrl      String?    @db.VarChar(200)
   publishedAt DateTime?
   createdAt   DateTime   @default(now())

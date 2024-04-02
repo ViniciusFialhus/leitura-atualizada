@@ -95,8 +95,7 @@ export class BooksRepository {
     });
   }
 
-  // findBookIsbn(isbn: Book) {
-
+  // findBookIsbn(isbn: string) {
   //   return this.prisma.book.findUniqueOrThrow({
   //     where: {
   //       isbn,
