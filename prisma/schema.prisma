@@ -28,10 +28,10 @@ model Book {
   id          String     @id @default(uuid())
   title       String     @db.VarChar(100)
   author      String     @db.VarChar(100)
-  genre       String?    @db.VarChar(20)
-  description String?    @db.VarChar(255)
-  isbn        String     @db.VarChar(13)
-  imgUrl      String     @db.VarChar(3000)
+  genre       String     @db.VarChar(100)
+  description String?    @db.VarChar(10000)
+  isbn        String     @unique @db.VarChar(20)
+  imgUrl      String?    @db.VarChar(200)
   publishedAt DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -64,11 +64,11 @@ enum LoanStatus {
 }
 
 model Wishlist {
-  id     String @id @default(uuid())
-  userId String
-  bookId String
-  book   Book   @relation(fields: [bookId], references: [id])
-  user   User   @relation(fields: [userId], references: [id])
+  entryId String @id @default(uuid())
+  userId  String
+  bookId  String
+  book    Book   @relation(fields: [bookId], references: [id])
+  user    User   @relation(fields: [userId], references: [id])
 
   @@map("wishlist")
 }

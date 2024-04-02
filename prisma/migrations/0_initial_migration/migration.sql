@@ -11,7 +11,7 @@ CREATE TABLE "users" (
     "username" VARCHAR(50) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "refreshToken" VARCHAR(200),
+    "refreshToken" TEXT,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -21,10 +21,10 @@ CREATE TABLE "books" (
     "id" TEXT NOT NULL,
     "title" VARCHAR(100) NOT NULL,
     "author" VARCHAR(100) NOT NULL,
-    "genre" VARCHAR(20),
-    "description" VARCHAR(255),
-    "isbn" VARCHAR(13) NOT NULL,
-    "imgUrl" VARCHAR(3000) NOT NULL,
+    "genre" VARCHAR(100) NOT NULL,
+    "description" VARCHAR(10000),
+    "isbn" VARCHAR(20) NOT NULL,
+    "imgUrl" VARCHAR(200),
     "publishedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -48,15 +48,18 @@ CREATE TABLE "loans" (
 
 -- CreateTable
 CREATE TABLE "wishlist" (
-    "id" TEXT NOT NULL,
+    "entryId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "bookId" TEXT NOT NULL,
 
-    CONSTRAINT "wishlist_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "wishlist_pkey" PRIMARY KEY ("entryId")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "books_isbn_key" ON "books"("isbn");
 
 -- AddForeignKey
 ALTER TABLE "loans" ADD CONSTRAINT "loans_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
