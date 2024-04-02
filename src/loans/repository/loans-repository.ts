@@ -7,5 +7,6 @@ export abstract class LoansRepository {
   abstract findBook(bookId: string): Promise<Book>;
   abstract findUser(userId: string): Promise<User>;
   abstract findLoans(): Promise<Loan[]>;
+  abstract findLoan(id: string): Promise<Loan>;
   abstract updateLoan(id: string, updateLoan: UpdateLoanDto): Promise<Loan>;
 }
