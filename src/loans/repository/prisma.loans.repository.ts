@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { Book, Loan, User } from '@prisma/client';
+import { Book, Loan } from '@prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
 import { UpdateLoanDto } from '../dto/update-loan.dto';
-import { LoansRepository } from './loans-repository';
 import { CreateLoan } from '../models/CreateLoan';
+import { LoansRepository } from './loans-repository';
 
 @Injectable()
 export class PrismaLoansRepository implements LoansRepository {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prismaService: PrismaService) { }
 
   async createLoan(createLoan: CreateLoan): Promise<Loan> {
     const loanCreated = await this.prismaService.loan.create({
@@ -25,16 +25,16 @@ export class PrismaLoansRepository implements LoansRepository {
     });
   }
 
-  async findUser(userId: string): Promise<User> {
-    return await this.prismaService.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-  }
-
   async findLoans(): Promise<Loan[]> {
     return await this.prismaService.loan.findMany();
+  }
+
+  async findLoan(id: string): Promise<Loan> {
+    return await this.prismaService.loan.findUnique({
+      where: {
+        id
+      }
+    })
   }
 
   async updateLoan(id: string, updateLoan: UpdateLoanDto): Promise<Loan> {
