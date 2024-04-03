@@ -5,15 +5,17 @@ import {
   // Delete,
   Get,
   // Param,
-  Patch,
+  Put,
   Inject,
   forwardRef,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { AuthService } from 'src/auth/auth.service';
+import { AuthenticatedUserGuard } from 'src/auth/guards/authenticated-user.guard';
 
 @Controller()
 export class UsersController {
@@ -24,23 +26,25 @@ export class UsersController {
   ) {}
 
   @Post('/profile')
-  createProfileInfo(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createUser(createUserDto);
+  async createProfileInfo(@Body() createUserDto: CreateUserDto) {
+    return await this.usersService.createUser(createUserDto);
   }
 
   @Get('/profile')
-  findProfile() {
-    return this.usersService.findAllUsers();
+  @UseGuards(AuthenticatedUserGuard)
+  async findProfile(@Headers('Authorization') userToken: string) {
+    const tokenData = await this.authService.decryptToken(userToken);
+    return await this.usersService.findByEmail(tokenData.email);
   }
 
-  @Patch('/profile')
+  @Put('/profile')
+  @UseGuards(AuthenticatedUserGuard)
   async updateProfile(
     @Body() updateUserDto: UpdateUserDto,
     @Headers('Authorization') userToken: string,
   ) {
-    const userData = await this.authService.decryptToken(userToken);
-
-    return this.usersService.updateUser(userData.email, updateUserDto);
+    const tokenData = await this.authService.decryptToken(userToken);
+    return await this.usersService.updateUser(tokenData.email, updateUserDto);
   }
 
   // @Get('/wishlist/:id')
