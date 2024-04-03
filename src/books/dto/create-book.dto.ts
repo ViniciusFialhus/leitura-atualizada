@@ -28,12 +28,12 @@ export class CreateBookDto implements Book {
   @IsISBN(undefined, { message: 'Must be a valid ISBN code' })
   isbn: string;
 
-  @IsNotEmpty({ message: 'Can`t be empty' })
+
   @IsString({ message: 'Must be a String' })
   @IsUrl(undefined, { message: 'Must be a valid URL' })
   imgUrl: string;
 
-  @IsOptional()
+  @IsNotEmpty({ message: 'Can`t be empty' })
   @IsString({ message: 'Must be a String' })
   @MaxLength(20, { message: 'Must`ve less than 20 characters' })
   genre: string;
