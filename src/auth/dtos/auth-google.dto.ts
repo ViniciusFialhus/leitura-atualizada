@@ -1,24 +1,29 @@
-import { IsEmail, IsString, IsBoolean } from 'class-validator';
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { AuthLogin } from '../entities/auth-login.entity';
 export class AuthGoogleDto implements Partial<AuthLogin> {
-  @IsEmail()
+  @IsNotEmpty({ message: 'Can`t be empty' })
+  @IsEmail(undefined, { message: 'Must be a valid email' })
   email: string;
 
-  @IsString()
+  @IsNotEmpty({ message: 'Can`t be empty' })
+  @IsString({ message: "Must be a String" })
   firstName: string;
 
-  @IsString()
+  @IsNotEmpty({ message: 'Can`t be empty' })
+  @IsString({ message: "Must be a String" })
   lastName: string;
 
-  @IsString()
+  @IsNotEmpty({ message: 'Can`t be empty' })
+  @IsString({ message: "Must be a String" })
   picture: string;
 
-  @IsString()
+  @IsString({ message: "Must be a String" })
   accessToken: string;
 
-  @IsString()
+  @IsOptional()
+  @IsString({ message: "Must be a String" })
   refreshToken: string;
 
-  @IsBoolean()
+  @IsBoolean({ message: "Must be a boolean value" })
   isAdm?: boolean;
 }
