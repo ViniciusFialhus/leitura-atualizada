@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { addDays, isSaturday, isSunday } from 'date-fns';
+import { addDays, isFriday, isSaturday, isSunday, isThursday, isWednesday } from 'date-fns';
 import { Request } from 'express';
 import { AuthService } from 'src/auth/auth.service';
 import { UsersService } from 'src/users/users.service';
@@ -13,7 +13,7 @@ export class LoansService {
     private loansRepository: LoansRepository,
     private authService: AuthService,
     private userService: UsersService,
-  ) {}
+  ) { }
 
   async create(createLoanDto: CreateLoanDto, token: string) {
     const isBookExist = await this.loansRepository.findBook(
@@ -29,6 +29,12 @@ export class LoansService {
 
     if (!userExists) {
       throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
+    }
+
+    if (isWednesday(addDays(new Date(), 3))
+      || isThursday(addDays(new Date(), 3))
+      || isFriday(addDays(new Date(), 3))) {
+      _dueDate = addDays(new Date(), 6);
     }
 
     if (isSaturday(addDays(new Date(), 3))) {
