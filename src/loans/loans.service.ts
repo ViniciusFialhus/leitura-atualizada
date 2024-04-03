@@ -9,13 +9,19 @@ import { LoansRepository } from './repository/loans-repository';
 
 @Injectable()
 export class LoansService {
-  constructor(private loansRepository: LoansRepository, private authService: AuthService, private userService: UsersService) { }
+  constructor(
+    private loansRepository: LoansRepository,
+    private authService: AuthService,
+    private userService: UsersService,
+  ) {}
 
-  async create(createLoanDto: CreateLoanDto, req: Request) {
-    const isBookExist = await this.loansRepository.findBook(createLoanDto.bookId)
-    const data = await this.authService.decryptToken(req)
-    const userExists = await this.userService.findByEmail(data.emil)
-    let _dueDate: Date
+  async create(createLoanDto: CreateLoanDto, token: string) {
+    const isBookExist = await this.loansRepository.findBook(
+      createLoanDto.bookId,
+    );
+    const data = await this.authService.decryptToken(token);
+    const userExists = await this.userService.findByEmail(data.email);
+    let _dueDate: Date;
 
     if (!isBookExist) {
       throw new HttpException('Livro não encontrado', HttpStatus.NOT_FOUND);
@@ -26,11 +32,11 @@ export class LoansService {
     }
 
     if (isSaturday(addDays(new Date(), 3))) {
-      _dueDate = addDays(new Date(), 5)
+      _dueDate = addDays(new Date(), 5);
     }
 
     if (isSunday(addDays(new Date(), 3))) {
-      _dueDate = addDays(new Date(), 4)
+      _dueDate = addDays(new Date(), 4);
     }
 
     const loanCreated = {
@@ -38,51 +44,65 @@ export class LoansService {
       userId: userExists.id,
       createdAt: new Date(),
       pickupDate: new Date(),
-      dueDate: _dueDate
-    }
+      dueDate: _dueDate,
+    };
 
-    const loan = await this.loansRepository.createLoan(loanCreated)
+    const loan = await this.loansRepository.createLoan(loanCreated);
 
     return {
       bookId: loan.bookId,
-      pickupDate: loan.pickupDate
-    }
+      pickupDate: loan.pickupDate,
+    };
   }
 
-  async findAll(req: Request) {
-    const data = await this.authService.decryptToken(req)
-    const user = await this.userService.findByEmail(data.email)
+  async findAll() {
+    // const user = await this.userService.findByEmail(data.email);
 
-    if (!user.isAdm) {
-      throw new HttpException("Rota somente para administradores", HttpStatus.FORBIDDEN)
-    }
+    // if (!user.isAdm) {
+    //   throw new HttpException(
+    //     'Rota somente para administradores',
+    //     HttpStatus.FORBIDDEN,
+    //   );
+    // }
 
-    return await this.loansRepository.findLoans()
+    return await this.loansRepository.findLoans();
   }
 
-  async update(id: string, updateLoanDto: UpdateLoanDto, req: Request) {
-    const data = await this.authService.decryptToken(req)
-    const user = await this.userService.findByEmail(data.email)
+  async update(id: string, updateLoanDto: UpdateLoanDto, token: string) {
+    const data = await this.authService.decryptToken(token);
+    const user = await this.userService.findByEmail(data.email);
 
     if (!user.isAdm) {
-      throw new HttpException("Rota somente para administradores", HttpStatus.FORBIDDEN)
+      throw new HttpException(
+        'Rota somente para administradores',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
-    const loanExists = await this.loansRepository.findLoan(id)
+    const loanExists = await this.loansRepository.findLoan(id);
 
     if (!loanExists) {
-      throw new HttpException("Empréstimo não encontrado", HttpStatus.NOT_FOUND)
+      throw new HttpException(
+        'Empréstimo não encontrado',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
-    const loanUpdated = await this.loansRepository.updateLoan(id, updateLoanDto)
+    const loanUpdated = await this.loansRepository.updateLoan(
+      id,
+      updateLoanDto,
+    );
 
     if (!loanUpdated) {
-      throw new HttpException("Erro ao atualizar o empréstimo", HttpStatus.BAD_REQUEST)
+      throw new HttpException(
+        'Erro ao atualizar o empréstimo',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     return {
-      message: "Empréstimo atualizado com sucesso"
-    }
+      message: 'Empréstimo atualizado com sucesso',
+    };
   }
 
   remove(id: number) {

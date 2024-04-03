@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { GoogleOAuthStrategy } from './strategies/google-oauth.strategy';
@@ -17,7 +17,7 @@ import { GoogleRefreshStrategy } from './strategies/google-refresh.strategy';
     JwtModule.register({
       secret: process.env.JWT_SECRET,
     }),
-    UsersModule,
+    forwardRef(() => UsersModule),
   ],
   controllers: [AuthController],
   providers: [
