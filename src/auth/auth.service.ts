@@ -1,20 +1,24 @@
-import { HttpException, HttpStatus, Injectable, Req } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from 'prisma/prisma.service';
 import { AuthLoginDto } from './dtos/auth-login.dto';
 import { AuthPayloadDto } from './dtos/auth-payload.dto';
 import { AuthLogin as UserCredentials } from './entities/auth-login.entity';
 import { AuthGoogleDto } from './dtos/auth-google.dto';
 import { UsersService } from 'src/users/users.service';
 import axios from 'axios';
-import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
   ) {}
 
@@ -89,17 +93,15 @@ export class AuthService {
     return tokens;
   }
 
-  async decryptToken(req: Request) {
-    const bearerToken = req.get('Authorization').replace('Bearer', '').trim();
-    const tokenData = this.jwtService.verifyAsync(bearerToken);
+  async decryptToken(bearerToken: string): Promise<AuthPayloadDto> {
+    const token = bearerToken.replace('Bearer', '').trim();
+    const tokenData = this.jwtService.verifyAsync(token);
 
     return tokenData;
   }
 
   async googleLogin(userData: AuthGoogleDto) {
-    const userFound = await this.prisma.user.findUnique({
-      where: { email: userData.email },
-    });
+    const userFound = await this.usersService.findByEmail(userData.email);
 
     if (!userFound && userData.accessToken) {
       await this.usersService.createUser({
