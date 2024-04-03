@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { addDays, isFriday, isSaturday, isSunday, isThursday, isWednesday } from 'date-fns';
+import { addDays, isFriday, isSaturday, isSunday, isThursday, isToday, isWednesday } from 'date-fns';
 import { Request } from 'express';
 import { AuthService } from 'src/auth/auth.service';
 import { UsersService } from 'src/users/users.service';
@@ -21,7 +21,7 @@ export class LoansService {
     );
     const data = await this.authService.decryptToken(token);
     const userExists = await this.userService.findByEmail(data.email);
-    let _dueDate: Date;
+    let _dueDate: Date = new Date();
 
     if (!isBookExist) {
       throw new HttpException('Livro não encontrado', HttpStatus.NOT_FOUND);
