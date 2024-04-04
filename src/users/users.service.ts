@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { generateFromEmail } from 'unique-username-generator';
 import { CreateUserDto } from './dto/create-user.dto';
-import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { WishlistRepository } from './repository/user-wishlist.repository';
 import { UserRepository } from './repository/user.repository';
@@ -40,34 +39,51 @@ export class UsersService {
     return await this.userRepository.updateUser(existingUser.id, updateUserDto);
   }
 
-  // async findUserWishlist(userId: string, createUserDto: CreateUserDto) {
-  //   const existingUser = await this.findByEmail(createUserDto.email);
+  async getWishlist(userEmail: string) {
+    const existingUser = await this.findByEmail(userEmail);
+    if (!existingUser) {
+      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
+    }
 
-  //   if (!existingUser) {
-  //     throw new HttpException('Usuario não existente', HttpStatus.BAD_REQUEST);
-  //   }
+    return await this.wishlistRepository.returnWishlist(existingUser.id);
+  }
 
-  //   return await this.wishlistRepository.findWishUser(userId);
-  // }
+  async addToWishlist(userEmail: string, bookId: string) {
+    const existingUser = await this.findByEmail(userEmail);
+    if (!existingUser) {
+      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
+    }
 
-  // async createWishlist(createWishlistDto: CreateWishlistDto) {
-  //   return await this.wishlistRepository.createWishlistingBooks(createWishlistDto)
-  // }
+    return await this.wishlistRepository.addToWishlist({
+      userId: existingUser.id,
+      bookId,
+    });
+  }
 
-  // async removeWishlistingBooks(id: string) {
-  //   const userWishlist = this.wishlistRepository.findWishlist(id);
+  async removeFromWishlist(userEmail: string, bookId: string) {
+    const existingUser = await this.findByEmail(userEmail);
+    if (!existingUser) {
+      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
+    }
 
-  //   if (!userWishlist) {
-  //     throw new HttpException(
-  //       'Esse item não consta nessa lista',
-  //       HttpStatus.BAD_REQUEST,
-  //     );
-  //   }
+    const bookListed = await this.wishlistRepository.findBookWishlisted({
+      userId: existingUser.id,
+      bookId,
+    });
+    if (bookListed === null) {
+      throw new HttpException(
+        'Esse item não consta nessa lista',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
-  //   return this.wishlistRepository.removeWishlistingBooks(id);
-  // }
-
-  // async findShareLink(id: string) {
-  //   return this.wishlistRepository.findShareLink(id);
-  // }
+    return this.wishlistRepository.removeBookFromWishlist({
+      userId: existingUser.id,
+      bookId,
+    });
+  }
 }
+
+// async findShareLink(id: string) {
+//   return this.wishlistRepository.findShareLink(id);
+// }
