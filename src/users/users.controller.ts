@@ -32,19 +32,35 @@ export class UsersController {
 
   @Get('/profile')
   @UseGuards(AuthenticatedUserGuard)
-  async findProfile(@Headers('Authorization') userToken: string) {
-    const tokenData = await this.authService.decryptToken(userToken);
-    return await this.usersService.findByEmail(tokenData.email);
+  async findProfile(
+    @Headers('Authorization') jwtToken: string,
+    @Cookies('access_token') googleToken: string,
+  ) {
+    if (jwtToken) {
+      const tokenData = await this.authService.decryptToken(jwtToken);
+      return await this.usersService.findByEmail(tokenData.email);
+    } else if (googleToken) {
+      const token = this.authService.decryptToken(jwtToken);
+      const userEmail = await this.authService.retrieveGoogleEmail(token);
+      return await this.usersService.findByEmail(userEmail);
+    }
   }
 
   @Put('/profile')
   @UseGuards(AuthenticatedUserGuard)
   async updateProfile(
     @Body() updateUserDto: UpdateUserDto,
-    @Headers('Authorization') userToken: string,
+    @Headers('Authorization') jwtToken: string,
+    @Cookies('access_token') googleToken: string,
   ) {
-    const tokenData = await this.authService.decryptToken(userToken);
-    return await this.usersService.updateUser(tokenData.email, updateUserDto);
+    if (jwtToken) {
+      const tokenData = await this.authService.decryptToken(jwtToken);
+      return await this.usersService.updateUser(tokenData.email, updateUserDto);
+    } else if (googleToken) {
+      const token = this.authService.decryptToken(jwtToken);
+      const userEmail = await this.authService.retrieveGoogleEmail(token);
+      return await this.usersService.updateUser(userEmail, updateUserDto);
+    }
   }
 
   // @Get('/wishlist/:id')
