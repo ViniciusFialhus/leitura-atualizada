@@ -26,8 +26,10 @@ export class UserRepository {
     });
   }
 
-  async findAllUser() {
-    return await this.prisma.user.findMany();
+  async findUserHash(wishlistHash: string) {
+    return await this.prisma.user.findFirst({
+      where: { shareableHash: wishlistHash },
+    });
   }
 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {

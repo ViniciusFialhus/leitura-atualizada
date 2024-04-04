@@ -11,6 +11,7 @@ CREATE TABLE "users" (
     "username" VARCHAR(50) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "shareableHash" CHAR(20) NOT NULL,
     "refreshToken" TEXT,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")

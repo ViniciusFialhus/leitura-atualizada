@@ -2,14 +2,16 @@ import {
   Body,
   Headers,
   Controller,
-  // Delete,
+  Delete,
   Get,
-  // Param,
+  Param,
   Put,
   Inject,
   forwardRef,
   Post,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -62,23 +64,74 @@ export class UsersController {
     }
   }
 
-  // @Get('/wishlist/:id')
-  // findWishlist(@Param('id') userId: string, createUserDto: CreateUserDto) {
-  //   return this.usersService.findUserWishlist(userId, createUserDto);
-  // }
+  @Get('/wishlist')
+  @UseGuards(AuthenticatedUserGuard)
+  async findWishlist(
+    @Headers('Authorization') jwtToken: string,
+    @Cookies('access_token') googleToken: string,
+  ) {
+    if (jwtToken) {
+      const tokenData = await this.authService.decryptToken(jwtToken);
+      return await this.usersService.getWishlist(tokenData.email);
+    } else if (googleToken) {
+      const userEmail = await this.authService.retrieveGoogleEmail(googleToken);
+      return await this.usersService.getWishlist(userEmail);
+    }
+  }
 
-  // @Post('/wishlist')
-  // createWishlistingBooks(@Body() CreateWishlistDto: CreateWishlistDto) {
-  //   return this.usersService.createWishlist(CreateWishlistDto);
-  // }
+  @Post('/wishlist')
+  @UseGuards(AuthenticatedUserGuard)
+  async addToUserWishlist(
+    @Body('bookId') bookId: string,
+    @Headers('Authorization') jwtToken: string,
+    @Cookies('access_token') googleToken: string,
+  ) {
+    if (jwtToken) {
+      const tokenData = await this.authService.decryptToken(jwtToken);
+      return await this.usersService.addToWishlist(tokenData.email, bookId);
+    } else if (googleToken) {
+      const userEmail = await this.authService.retrieveGoogleEmail(googleToken);
+      return await this.usersService.addToWishlist(userEmail, bookId);
+    }
+  }
 
-  // @Delete('/wishlist/:id')
-  // removeWishlistingBooks(@Param('id') id: string) {
-  //   return this.usersService.removeWishlistingBooks(id);
-  // }
+  @Delete('/wishlist/:bookId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AuthenticatedUserGuard)
+  async removeFromWishlist(
+    @Param('bookId') bookId: string,
+    @Headers('Authorization') jwtToken: string,
+    @Cookies('access_token') googleToken: string,
+  ) {
+    if (jwtToken) {
+      const tokenData = await this.authService.decryptToken(jwtToken);
+      return await this.usersService.removeFromWishlist(
+        tokenData.email,
+        bookId,
+      );
+    } else if (googleToken) {
+      const userEmail = await this.authService.retrieveGoogleEmail(googleToken);
+      return await this.usersService.removeFromWishlist(userEmail, bookId);
+    }
+  }
 
-  // @Get('/wishlist/share/:id')
-  // findShareLink(@Param('id') id: string) {
-  //   return this.usersService.findShareLink(id)
-  // }
+  @Get('/wishlist/share')
+  @UseGuards(AuthenticatedUserGuard)
+  async shareWishlist(
+    @Headers('Authorization') jwtToken: string,
+    @Cookies('access_token') googleToken: string,
+  ) {
+    if (jwtToken) {
+      const tokenData = await this.authService.decryptToken(jwtToken);
+      return await this.usersService.generateShareLink(tokenData.email);
+    } else if (googleToken) {
+      const userEmail = await this.authService.retrieveGoogleEmail(googleToken);
+      return await this.usersService.generateShareLink(userEmail);
+    }
+  }
+
+  @Get('/:hash')
+  async publicWishlistAccess(@Param(':hash') hash: string) {
+    return await this.usersService.accessPublicWishlist(hash);
+  }
 }
