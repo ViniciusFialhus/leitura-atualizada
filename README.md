@@ -1,73 +1,185 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Leitura atualizada
+  API de biblioteca.
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Rotas
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+#### Autenticação:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ npm install
+- Rota para realizar login com uma conta do Google:
+```
+POST: /auth/google
 ```
 
-## Running the app
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+#### Gerenciamento de Livros:
+- Retorna a lista de todos os livros disponíveis na biblioteca.
+```
+GET: /books
 ```
 
-## Test
+- Busca livros por titulo, autor e genero. substituindo o parâmetro de consulta "q" pelo paramentro pesquisado.
+```
+ /books/search?q={query}
+```
+Por exemplo.
+```
+GET: /books/search?title={query}
+GET: /books/search?author={query}
+GET: /books/search?genre={query}
+```
+- Retorna detalhes de um livro específico pelo seu ID.
+```
+GET: /books/{id}
+```
+- Adiciona um novo livro à biblioteca. (Apenas para usuario Adinistrador)
+```
+POST: /books:
+```
+lembrando que já vamos ter vários livros puxados da api **Google Books APIs**
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```
+Link da API: https://developers.google.com/books/docs/v1/using?hl=pt-br
 ```
 
-## Support
+exemplo de requisição:
+```
+{
+  "isbn": "9780307887436"
+}
+```
+- Atualiza os detalhes de um livro existente. (Apenas para usuario Adinistrador)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```
+PUT: /books/{id}
+```
+- Remove um livro da biblioteca. (Apenas para usuario Adinistrador)
+```
+DELETE: /books/{id}
+```
 
-## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+#### Empréstimo de Livros:
 
-## License
+- Solicita empréstimo de um livro disponível na biblioteca.
 
-Nest is [MIT licensed](LICENSE).
+exemplo de resposta:
+```
+"bookId": "ID do Livro Solicitado",
+"pickupDate": "Data de Retirada do Livro"
+
+```
+- Retorna a lista de todas as solicitações de empréstimo. (Apenas para usuario Adinistrador)
+```
+GET: /loan-requests
+```
+
+- Aprova ou reprova uma solicitação de empréstimo. (Apenas para usuario Adinistrador)
+```
+PUT: /loan-requests/{id}
+```
+exemplo de requisição:
+```
+{
+  "status": "approved" // ou "rejected"
+}
+
+```
+
+
+#### Perfil de Usuário:
+
+- Retorna as informações do perfil do usuário.
+```
+GET: /profile
+```
+
+- Cria as informações do perfil do usuário.
+```
+POST: /profile
+```
+Obs. diferente de cadastrar para realizar o login, já que todos são feitos pelo google.
+
+
+- Atualiza as informações do perfil do usuário.
+
+```
+PUT: /profile
+```
+
+exemplo de requisição:
+
+```
+{
+  "name": "Novo Nome do Usuário",
+  "email": "Novo Email do Usuário",
+  "phone": "Novo Número de Telefone do Usuário",
+  "address": "Nova Endereço do Usuário"
+}
+```
+
+- Retorna a lista de desejos do usuário.
+
+```
+GET: /wishlist
+```
+
+-  Adiciona um livro à lista de desejos do usuário.
+
+```
+POST: /wishlist
+```
+
+exemplo de requisição:
+
+```
+{
+  "bookId": "ID do Livro a ser Adicionado à Lista de Desejos"
+}
+```
+
+- Remove um livro da lista de desejos do usuário.
+
+```
+DELETE: /wishlist/{id}
+```
+
+- Retorna uma URL única para compartilhar a lista de desejos do usuário.
+
+```
+GET: /wishlist/share
+```
+
+
+
+## Funcionalidades
+
+
+####  Usuarios Cliente
+
+1. Cadastro e login atraves da conta do Google
+2. Cadastro e login nativo
+3. Atualizar seus dados de usuários
+4. Ver todos os livros disponiveis no banco de dados
+5. Buscar livro com titulo, autor ou genero
+6. Solicitar emprestimos de livros
+
+
+#### usuarios Administrador
+
+1. Cadastro e login atraves da conta do Google
+2. Cadastro e login nativo
+3. Atualizar seus dados de usuários
+4. Adicionar, editar deletar livros ao banco de dados
+5. Ver todos os pedidos de emprestimos
+6. Aprovar ou rejeitar eprestimo de livros
+
+
+## Funcionalidades
+
+- JavaScript
+- Node.js
+- PostgreSQL
+- Nest.js
+- Prisma
+- Docker
