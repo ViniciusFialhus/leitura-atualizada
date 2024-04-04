@@ -56,7 +56,7 @@ export class AuthController {
   async refreshTokens(@Req() req: Request) {
     const userEmail = req.user['email'];
     const refreshToken = req.user['refreshToken'];
-    return await this.authService.refreshTokens(userEmail, refreshToken);
+    return await this.authService.refreshAccess(userEmail, refreshToken);
   }
 
   @UseGuards(AuthenticatedUserGuard, AdminAccessGuard)
