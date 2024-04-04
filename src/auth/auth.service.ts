@@ -12,7 +12,7 @@ import { AuthPayloadDto } from './dtos/auth-payload.dto';
 import { AuthLogin as UserCredentials } from './entities/auth-login.entity';
 import { AuthGoogleDto } from './dtos/auth-google.dto';
 import { UsersService } from 'src/users/users.service';
-import axios from 'axios';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +20,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
+    private readonly httpService: HttpService,
   ) {}
 
   async generateTokens(payload: AuthPayloadDto): Promise<{
@@ -100,23 +101,41 @@ export class AuthService {
     return tokenData;
   }
 
+  async promoteUser(userEmail: string) {
+    return this.usersService.updateUser(userEmail, {
+      isAdm: true,
+      refreshToken: null,
+    });
+  }
+
   async googleLogin(userData: AuthGoogleDto) {
     const userFound = await this.usersService.findByEmail(userData.email);
 
     if (!userFound && userData.accessToken) {
-      await this.usersService.createUser({
+      return await this.usersService.createUser({
         email: userData.email,
         name: userData.firstName + ' ' + userData.lastName,
         password: '########',
         isAdm: userData.isAdm,
         username: '########',
+        shareableHash: '####################',
+        refreshToken: null,
       });
     }
   }
 
+  async retrieveGoogleEmail(token: string) {
+    const config = { headers: { Authorization: `Bearer ${token}` } };
+    const userData = await this.httpService.axiosRef.get(
+      `https://www.googleapis.com/oauth2/v3/userinfo`,
+      config,
+    );
+    return userData.data.email;
+  }
+
   async isTokenExpired(token: string): Promise<boolean> {
     try {
-      const response = await axios.get(
+      const response = await this.httpService.axiosRef.get(
         `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${token}`,
       );
 
@@ -130,7 +149,7 @@ export class AuthService {
     }
   }
 
-  async refreshTokens(userEmail: string, refreshToken: string) {
+  async refreshAccess(userEmail: string, refreshToken: string) {
     const user = await this.usersService.findByEmail(userEmail);
 
     if (!user || !user.refreshToken || refreshToken !== user.refreshToken)
@@ -140,14 +159,13 @@ export class AuthService {
       sub: user.id,
       email: user.email,
     });
-    await this.updateRefreshToken(user.email, tokens.refreshToken);
 
-    return tokens;
+    return tokens.accessToken;
   }
 
   async refreshGoogleToken(refreshToken: string): Promise<string> {
     try {
-      const response = await axios.post(
+      const response = await this.httpService.axiosRef.post(
         'https://accounts.google.com/o/oauth2/token',
         {
           client_id: process.env.GOOGLE_CLIENT_ID,
@@ -177,7 +195,7 @@ export class AuthService {
 
   async revokeGoogleToken(token: string) {
     try {
-      await axios.get(
+      await this.httpService.axiosRef.get(
         `https://accounts.google.com/o/oauth2/revoke?token=${token}`,
       );
     } catch (error) {
