@@ -5,6 +5,9 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Patch,
+  Param,
+  Headers,
   Req,
   Res,
   UseGuards,
@@ -15,6 +18,8 @@ import { AuthLoginDto } from './dtos/auth-login.dto';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
 import { AuthenticatedUserGuard } from './guards/authenticated-user.guard';
 import { RefreshTokenGuard } from './guards/jwt-refresh.guard';
+import { Cookies } from './utils/cookies.decorator';
+import { AdminAccessGuard } from './guards/admin.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -43,7 +48,7 @@ export class AuthController {
       httpOnly: true,
     });
 
-    res.redirect('http://localhost:3000/auth/teste');
+    res.redirect('back');
     return await this.authService.googleLogin(req.user);
   }
   @UseGuards(RefreshTokenGuard)
@@ -54,17 +59,27 @@ export class AuthController {
     return await this.authService.refreshTokens(userEmail, refreshToken);
   }
 
+  @UseGuards(AuthenticatedUserGuard, AdminAccessGuard)
+  @Patch('promote/:email')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async promote(@Param('email') userEmail: string) {
+    return await this.authService.promoteUser(userEmail);
+  }
+
   @UseGuards(AuthenticatedUserGuard)
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async logout(@Req() req: Request, @Res() res: Response) {
-    const refreshToken = req.cookies['refresh_token'];
-    const userEmail = req.user['email'];
+  async logout(
+    @Cookies('refresh_token') refreshToken: string,
+    @Headers('Authorization') userToken: string,
+    @Res() res: Response,
+  ) {
+    const tokenData = await this.authService.decryptToken(userToken);
 
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
 
-    await this.authService.logout(userEmail, refreshToken);
+    await this.authService.logout(tokenData.email, refreshToken);
 
     res.end();
   }

@@ -13,13 +13,15 @@ import { AuthLogin as UserCredentials } from './entities/auth-login.entity';
 import { AuthGoogleDto } from './dtos/auth-google.dto';
 import { UsersService } from 'src/users/users.service';
 import axios from 'axios';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     @Inject(forwardRef(() => UsersService))
-    private readonly usersService: UsersService,
+    private readonly usersService: UsersService
+    private readonly httpService: HttpService,
   ) {}
 
   async generateTokens(payload: AuthPayloadDto): Promise<{
@@ -100,6 +102,13 @@ export class AuthService {
     return tokenData;
   }
 
+  async promoteUser(userEmail: string) {
+    return this.usersService.updateUser(userEmail, {
+      isAdm: true,
+      refreshToken: null,
+    });
+  }
+
   async googleLogin(userData: AuthGoogleDto) {
     const userFound = await this.usersService.findByEmail(userData.email);
 
@@ -112,6 +121,15 @@ export class AuthService {
         username: '########',
       });
     }
+  }
+
+  async retrieveGoogleEmail(token: string) {
+    const config = { headers: { Authorization: `Bearer ${token}` } };
+    const userData = await this.httpService.axiosRef.get(
+      `https://www.googleapis.com/oauth2/v3/userinfo`,
+      config,
+    );
+    return userData.data.email;
   }
 
   async isTokenExpired(token: string): Promise<boolean> {
