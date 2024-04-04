@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { addDays, isFriday, isSaturday, isThursday, isWednesday } from 'date-fns';
+import { addDays, isFriday, isSaturday, isSunday, isThursday, isWednesday } from 'date-fns';
 import { Request } from 'express';
 import { AuthService } from 'src/auth/auth.service';
 import { UsersService } from 'src/users/users.service';
@@ -36,8 +36,8 @@ export class LoansService {
       _dueDate = addDays(pickupDate, 5);
     }
 
-    if (isSaturday(pickupDate)) {
-      _dueDate = addDays(pickupDate, 4);
+    if (isSaturday(pickupDate) || isSunday(pickupDate)) {
+      throw new HttpException('não fazemos emprestimos nos finais de semana', HttpStatus.BAD_REQUEST)
     }
 
     const loanCreated = {
