@@ -1,10 +1,12 @@
-import { IsUUID } from 'class-validator';
+import { IsNotEmpty, IsUUID } from 'class-validator';
 import { Wishlist } from '../entities/wishlist.entity';
 
 export class WishlistDto implements Wishlist {
-  @IsUUID()
-  userId: string;
+  @IsNotEmpty({ message: 'Can`t be empty' })
+  @IsUUID('all', { message: 'Must be a valid UUID' })
+  userid: string;
 
-  @IsUUID()
+  @IsNotEmpty({ message: 'Can`t be empty' })
+  @IsUUID('all', { message: 'Must be a valid UUID' })
   bookId: string;
 }
