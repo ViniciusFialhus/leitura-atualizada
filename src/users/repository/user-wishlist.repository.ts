@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { CreateWishlistDto } from '../dto/create-wishlist.dto';
+import { WishlistDto } from '../dto/wishlist.dto';
 
 @Injectable()
 export class WishlistRepository {

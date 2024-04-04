@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { generateFromEmail } from 'unique-username-generator';
 import { CreateUserDto } from './dto/create-user.dto';
-import { CreateWishlistDto } from './dto/create-wishlist.dto';
+import { CreateWishlistDto } from './dto/wishlist.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { WishlistRepository } from './repository/user-wishlist.repository';
 import { UserRepository } from './repository/user.repository';
