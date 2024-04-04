@@ -48,7 +48,7 @@ export class AuthController {
       httpOnly: true,
     });
 
-    res.redirect('http://localhost:3000/auth/teste');
+    res.redirect('back');
     return await this.authService.googleLogin(req.user);
   }
   @UseGuards(RefreshTokenGuard)

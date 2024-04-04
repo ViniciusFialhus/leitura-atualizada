@@ -21,14 +21,8 @@ export class AdminAccessStrategy extends PassportStrategy(Strategy, 'admin') {
     const googleToken = req.cookies['access_token'];
 
     if (googleToken) {
-      const config = { headers: { Authorization: `Bearer ${googleToken}` } };
-      const userData = await this.httpSevice.axiosRef.get(
-        `https://www.googleapis.com/oauth2/v3/userinfo`,
-        config,
-      );
-      const userFound = await this.usersService.findByEmail(
-        userData.data.email,
-      );
+      const userEmail = await this.authService.retrieveGoogleEmail(googleToken);
+      const userFound = await this.usersService.findByEmail(userEmail);
       if (userFound.isAdm) return true;
     } else if (userToken) {
       const tokenData = await this.authService.decryptToken(userToken);
