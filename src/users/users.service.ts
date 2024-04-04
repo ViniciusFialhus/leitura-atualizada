@@ -6,6 +6,7 @@ import { WishlistRepository } from './repository/user-wishlist.repository';
 import { UserRepository } from './repository/user.repository';
 import { HttpService } from '@nestjs/axios';
 import { BooksService } from 'src/books/books.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
