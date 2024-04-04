@@ -37,11 +37,4 @@ export class WishlistRepository {
   async findBookWishlisted(bookListed: WishlistDto) {
     return await this.prisma.wishlist.findFirst({ where: bookListed });
   }
-
-  // async findShareLink(id: string) {
-  //   return await this.prisma.wishlist.findUnique({
-  //     where: { id: id },
-  //     select: { shareLink: true },
-  //   });
-  // }
 }

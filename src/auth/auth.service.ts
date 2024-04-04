@@ -118,6 +118,8 @@ export class AuthService {
         password: '########',
         isAdm: userData.isAdm,
         username: '########',
+        shareableHash: '####################',
+        refreshToken: null,
       });
     }
   }

@@ -115,8 +115,23 @@ export class UsersController {
     }
   }
 
-  // @Get('/wishlist/share/:id')
-  // findShareLink(@Param('id') id: string) {
-  //   return this.usersService.findShareLink(id)
-  // }
+  @Get('/wishlist/share')
+  @UseGuards(AuthenticatedUserGuard)
+  async shareWishlist(
+    @Headers('Authorization') jwtToken: string,
+    @Cookies('access_token') googleToken: string,
+  ) {
+    if (jwtToken) {
+      const tokenData = await this.authService.decryptToken(jwtToken);
+      return await this.usersService.generateShareLink(tokenData.email);
+    } else if (googleToken) {
+      const userEmail = await this.authService.retrieveGoogleEmail(googleToken);
+      return await this.usersService.generateShareLink(userEmail);
+    }
+  }
+
+  @Get('/:hash')
+  async publicWishlistAccess(@Param(':hash') hash: string) {
+    return await this.usersService.accessPublicWishlist(hash);
+  }
 }

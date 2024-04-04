@@ -9,17 +9,18 @@ datasource db {
 }
 
 model User {
-  id           String     @id @default(uuid())
-  name         String     @db.VarChar(255)
-  email        String     @unique
-  isAdm        Boolean    @default(false)
-  password     String     @db.VarChar(200)
-  username     String     @db.VarChar(50)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  refreshToken String?
-  Wishlist     Wishlist[]
-  Loan         Loan[]
+  id            String     @id @default(uuid())
+  name          String     @db.VarChar(255)
+  email         String     @unique
+  isAdm         Boolean    @default(false)
+  password      String     @db.VarChar(200)
+  username      String     @db.VarChar(50)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  shareableHash String     @db.Char(20)
+  refreshToken  String?
+  Wishlist      Wishlist[]
+  Loan          Loan[]
 
   @@map("users")
 }

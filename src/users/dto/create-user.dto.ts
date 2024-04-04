@@ -34,4 +34,10 @@ export class CreateUserDto implements User {
   @IsString({ message: 'Must be a String' })
   @MinLength(4, { message: 'Must have at least 4 characteres' })
   username: string;
+
+  @IsString({ message: 'Must be a String' })
+  shareableHash: string;
+
+  @IsString({ message: 'Must be a String' })
+  refreshToken: string;
 }
