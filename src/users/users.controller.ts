@@ -16,6 +16,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthenticatedUserGuard } from 'src/auth/guards/authenticated-user.guard';
+import { Cookies } from 'src/auth/utils/cookies.decorator';
 
 @Controller()
 export class UsersController {
@@ -40,8 +41,7 @@ export class UsersController {
       const tokenData = await this.authService.decryptToken(jwtToken);
       return await this.usersService.findByEmail(tokenData.email);
     } else if (googleToken) {
-      const token = this.authService.decryptToken(jwtToken);
-      const userEmail = await this.authService.retrieveGoogleEmail(token);
+      const userEmail = await this.authService.retrieveGoogleEmail(googleToken);
       return await this.usersService.findByEmail(userEmail);
     }
   }
@@ -57,8 +57,7 @@ export class UsersController {
       const tokenData = await this.authService.decryptToken(jwtToken);
       return await this.usersService.updateUser(tokenData.email, updateUserDto);
     } else if (googleToken) {
-      const token = this.authService.decryptToken(jwtToken);
-      const userEmail = await this.authService.retrieveGoogleEmail(token);
+      const userEmail = await this.authService.retrieveGoogleEmail(googleToken);
       return await this.usersService.updateUser(userEmail, updateUserDto);
     }
   }
