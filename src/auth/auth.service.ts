@@ -100,6 +100,13 @@ export class AuthService {
     return tokenData;
   }
 
+  async promoteUser(userEmail: string) {
+    return this.usersService.updateUser(userEmail, {
+      isAdm: true,
+      refreshToken: null,
+    });
+  }
+
   async googleLogin(userData: AuthGoogleDto) {
     const userFound = await this.usersService.findByEmail(userData.email);
 
