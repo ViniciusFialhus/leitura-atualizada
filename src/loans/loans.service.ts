@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { addDays, isSaturday, isSunday } from 'date-fns';
+import { addDays, isFriday, isSaturday, isSunday, isThursday, isWednesday } from 'date-fns';
 import { Request } from 'express';
 import { AuthService } from 'src/auth/auth.service';
 import { UsersService } from 'src/users/users.service';
@@ -13,7 +13,7 @@ export class LoansService {
     private loansRepository: LoansRepository,
     private authService: AuthService,
     private userService: UsersService,
-  ) {}
+  ) { }
 
   async create(createLoanDto: CreateLoanDto, token: string) {
     const isBookExist = await this.loansRepository.findBook(
@@ -21,7 +21,8 @@ export class LoansService {
     );
     const data = await this.authService.decryptToken(token);
     const userExists = await this.userService.findByEmail(data.email);
-    let _dueDate: Date;
+    const pickupDate = new Date()
+    let _dueDate: Date = addDays(pickupDate, 3)
 
     if (!isBookExist) {
       throw new HttpException('Livro não encontrado', HttpStatus.NOT_FOUND);
@@ -31,19 +32,19 @@ export class LoansService {
       throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
     }
 
-    if (isSaturday(addDays(new Date(), 3))) {
-      _dueDate = addDays(new Date(), 5);
+    if (isWednesday(pickupDate) || isThursday(pickupDate) || isFriday(pickupDate)) {
+      _dueDate = addDays(pickupDate, 5);
     }
 
-    if (isSunday(addDays(new Date(), 3))) {
-      _dueDate = addDays(new Date(), 4);
+    if (isSaturday(pickupDate) || isSunday(pickupDate)) {
+      throw new HttpException('não fazemos emprestimos nos finais de semana', HttpStatus.BAD_REQUEST)
     }
 
     const loanCreated = {
       bookId: isBookExist.id,
       userId: userExists.id,
       createdAt: new Date(),
-      pickupDate: new Date(),
+      pickupDate,
       dueDate: _dueDate,
     };
 
