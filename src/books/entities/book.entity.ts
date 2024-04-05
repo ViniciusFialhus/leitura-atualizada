@@ -1,9 +1,13 @@
+import { BookStatus } from '@prisma/client';
+
 export interface Book {
-  title: String;
-  author: String;
-  genre?: String;
-  description?: String;
-  isbn: String;
+  id?: string;
+  title: string;
+  author: string;
+  genre: string;
+  description?: string;
+  isbn: string;
   publishedAt?: Date;
-  imageUrl: String;
+  imgUrl?: string;
+  status?: BookStatus;
 }

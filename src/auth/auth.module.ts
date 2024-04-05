@@ -1,10 +1,16 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { GoogleStrategy } from './strategies/google.strategy';
+import { GoogleOAuthStrategy } from './strategies/google-oauth.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './strategy/jwt.strategy';
+import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
+import { PrismaService } from 'prisma/prisma.service';
+import { UsersModule } from 'src/users/users.module';
+import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import { GoogleRefreshStrategy } from './strategies/google-refresh.strategy';
+import { AdminAccessStrategy } from './strategies/admin-access.strategy';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   exports: [AuthService],
@@ -12,10 +18,24 @@ import { JwtStrategy } from './strategy/jwt.strategy';
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '8h' },
+    }),
+    forwardRef(() => UsersModule),
+    HttpModule.registerAsync({
+      useFactory: () => ({
+        timeout: 5000,
+        maxRedirects: 5,
+      }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    GoogleOAuthStrategy,
+    AdminAccessStrategy,
+    GoogleRefreshStrategy,
+    JwtAccessStrategy,
+    JwtRefreshStrategy,
+    PrismaService,
+  ],
 })
 export class AuthModule {}

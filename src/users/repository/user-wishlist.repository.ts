@@ -1,29 +1,40 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { createWishlistDto } from '../dto/create-wishlist.dto';
-import { updateWishlistDto } from '../dto/update-user.dto';
+import { WishlistDto } from '../dto/wishlist.dto';
 
 @Injectable()
 export class WishlistRepository {
   constructor(private prisma: PrismaService) {}
-  async findWishlist() {
-    return await this.prisma.wishlist.findMany();
+
+  async returnWishlist(userId: string) {
+    const wishlistedEntries = await this.prisma.wishlist.findMany({
+      where: {
+        userId,
+      },
+      include: { book: true },
+    });
+
+    const wishlistedBooks = wishlistedEntries.map(
+      (bookEntry) => bookEntry.book,
+    );
+
+    return wishlistedBooks;
   }
 
-  async createWishlistingBooks(createWishlistDto: CreateWishlistDto) {
+  async addToWishlist(createWishlistDto: WishlistDto) {
+    createWishlistDto;
     return await this.prisma.wishlist.create({
       data: createWishlistDto,
     });
   }
 
-  async removeWishlistingBooks(id: string) {
-    return await this.prisma.wishlist.delete(id);
+  async removeBookFromWishlist(removeFromWishlistDto: WishlistDto) {
+    return await this.prisma.wishlist.deleteMany({
+      where: removeFromWishlistDto,
+    });
   }
 
-  async findShareLink(id: string) {
-    return await this.prisma.wishlist.findUnique({
-      where: { id: id },
-      select: { shareLink: true } 
-    });
+  async findBookWishlisted(bookListed: WishlistDto) {
+    return await this.prisma.wishlist.findFirst({ where: bookListed });
   }
 }

@@ -1,71 +1,132 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { UserRepository } from './repository/user.repository';
-import { WishlistRepository } from './repository/user-wishlist.repository';
+import { Book, User, Wishlist } from '@prisma/client';
+import { generateFromEmail } from 'unique-username-generator';
 import { CreateUserDto } from './dto/create-user.dto';
+import { WishlistRepository } from './repository/user-wishlist.repository';
+import { UserRepository } from './repository/user.repository';
+import { HttpService } from '@nestjs/axios';
+import { BooksService } from 'src/books/books.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { createWishlistDto } from '../dto/create-wishlist.dto';
-import { updateWishlistDto } from '../dto/update-user.dto';
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly wishlistRepository: WishlistRepository,
+    private readonly httpService: HttpService,
+    private readonly booksService: BooksService,
+  ) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<CreateUserDto> {
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        email: createUserDto.email,
+  async findByEmail(email: string) {
+    const existingUser = await this.userRepository.findUnique(email);
+
+    if (!existingUser) {
+      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
+    }
+    return existingUser;
+  }
+
+  async generateRandomCode(): Promise<string> {
+    const randomCodeRequest = await this.httpService.axiosRef.post(
+      'https://api.voucherjet.com/api/v1/p/generator',
+      {
+        count: 1,
+        pattern: '####################',
+        characters:
+          'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
       },
-    });
-    if (existingUser) {
+    );
+    return randomCodeRequest.data.codes[0];
+  }
+
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
+    try {
+      await this.findByEmail(createUserDto.email);
       throw new HttpException('Usuario já existente', HttpStatus.BAD_REQUEST);
+    } catch (error) {
+      createUserDto.username = generateFromEmail(createUserDto.email);
+      createUserDto.shareableHash = '####################';
+      createUserDto.refreshToken = null;
+
+      return await this.userRepository.createUser(createUserDto);
     }
-    return await prisma.user.create({
-      data: createUserDto,
-    });
   }
 
-  async findAllUser() {
-    return this.userRepository.findAllUser();
-  }
-
-  async updateUser(id: string, updateUserDto: UpdateUserDto) {
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        email: createUserDto.email,
-      },
-    });
-    if (existingUser) {
-      throw new HttpException('Usuario não encontrado', HttpStatus.BAD_REQUEST);
+  async updateUser(email: string, updateUserDto: UpdateUserDto) {
+    const user = await this.findByEmail(email);
+    try {
+      return await this.userRepository.updateUser(user.id, updateUserDto);
+    } catch (error) {
+      throw new HttpException(
+        'Apenas campos contidos no tipo User podem estar inseridos no Body da requisição',
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    return await this.userRepository.updateUser(id, updateUserDto);
   }
 
-  async findAllWishlist() {
-    return this.WishlistRepository.findWishlist();
-  }
-
-  async createWishlist(createWishlistDto: CreateWishlistDto): Promise<CreateWishlistDto> {
-    const existingUser = await prisma.wishlist.findUnique({
-      where: {
-        id: CreateWishlistDto.id,
-      },
-    });
-    if (existingUser) {
-      throw new HttpException('Usuario já existente', HttpStatus.BAD_REQUEST);
+  async getWishlist(userData: string) {
+    if (userData.includes('@')) {
+      const user = await this.findByEmail(userData);
+      return await this.wishlistRepository.returnWishlist(user.id);
+    } else {
+      return await this.wishlistRepository.returnWishlist(userData);
     }
-    return await prisma.wishlist.createWishlistingBooks({
-      data: createWishlistDto,
+  }
+
+  async addToWishlist(userEmail: string, bookId: string): Promise<Wishlist> {
+    const user = await this.findByEmail(userEmail);
+    await this.booksService.findOne(bookId);
+
+    return await this.wishlistRepository.addToWishlist({
+      userId: user.id,
+      bookId,
     });
   }
 
-  async removeWishlistingBooks(id: string) {
-    return this.WishlistRepository.removeWishlistingBooks(id);
+  async removeFromWishlist(userData: string, bookId: string) {
+    if (userData.includes('@')) {
+      const user = await this.findByEmail(userData);
+      const bookListed = await this.wishlistRepository.findBookWishlisted({
+        userId: user.id,
+        bookId,
+      });
+      if (bookListed === null) {
+        throw new HttpException(
+          'Esse item não consta nessa lista',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      return this.wishlistRepository.removeBookFromWishlist({
+        userId: user.id,
+        bookId,
+      });
+    }
+    const bookListed = await this.wishlistRepository.findBookWishlisted({
+      userId: userData,
+      bookId,
+    });
+    if (bookListed === null) {
+      throw new HttpException(
+        'Esse item não consta nessa lista',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return this.wishlistRepository.removeBookFromWishlist({
+      userId: userData,
+      bookId,
+    });
   }
 
-  async findShareLink(id: string) {
-    return this.WishlistRepository.findShareLink(id);
+  async generateShareLink(userEmail: string): Promise<string> {
+    const hash: string = await this.generateRandomCode();
+    await this.updateUser(userEmail, { shareableHash: hash });
+    return `http://localhost:3000/${hash}`;
   }
 
+  async accessPublicWishlist(hash: string): Promise<Book[]> {
+    const user = await this.userRepository.findUserHash(hash);
+    return await this.wishlistRepository.returnWishlist(user.id);
+  }
 }
