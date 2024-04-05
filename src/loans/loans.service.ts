@@ -110,6 +110,10 @@ export class LoansService {
           HttpStatus.BAD_REQUEST,
         );
       }
+    } else {
+      return await this.loansRepository.updateLoan(id, {
+        status: LoanStatus.REJECTED,
+      });
     }
   }
 }
