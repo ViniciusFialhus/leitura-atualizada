@@ -29,8 +29,9 @@ export class UsersController {
   ) {}
 
   @Post('/profile')
-  async createProfileInfo(@Body() createUserDto: CreateUserDto) {
-    return await this.usersService.createUser(createUserDto);
+  @HttpCode(HttpStatus.CREATED)
+  createProfileInfo(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.createUser(createUserDto);
   }
 
   @Get('/profile')
@@ -81,6 +82,7 @@ export class UsersController {
 
   @Post('/wishlist')
   @UseGuards(AuthenticatedUserGuard)
+  @HttpCode(HttpStatus.CREATED)
   async addToUserWishlist(
     @Body('bookId') bookId: string,
     @Headers('Authorization') jwtToken: string,
@@ -96,8 +98,8 @@ export class UsersController {
   }
 
   @Delete('/wishlist/:bookId')
-  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthenticatedUserGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async removeFromWishlist(
     @Param('bookId') bookId: string,
     @Headers('Authorization') jwtToken: string,
@@ -131,7 +133,7 @@ export class UsersController {
   }
 
   @Get('/:hash')
-  async publicWishlistAccess(@Param(':hash') hash: string) {
-    return await this.usersService.accessPublicWishlist(hash);
+  publicWishlistAccess(@Param(':hash') hash: string) {
+    return this.usersService.accessPublicWishlist(hash);
   }
 }

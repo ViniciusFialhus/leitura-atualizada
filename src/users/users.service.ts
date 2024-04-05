@@ -18,7 +18,11 @@ export class UsersService {
   ) {}
 
   async findByEmail(email: string) {
-    return await this.userRepository.findUnique(email);
+    const existingUser = await this.userRepository.findUnique(email);
+    if (!existingUser) {
+      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
+    }
+    return existingUser;
   }
 
   async generateRandomCode(): Promise<string> {
@@ -47,43 +51,38 @@ export class UsersService {
   }
 
   async updateUser(email: string, updateUserDto: UpdateUserDto) {
-    const existingUser = await this.findByEmail(email);
-    if (!existingUser) {
-      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
+    const user = await this.findByEmail(email);
+    try {
+      return await this.userRepository.updateUser(user.id, updateUserDto);
+    } catch (error) {
+      throw new HttpException(
+        'Apenas campos contidos no tipo User podem estar inseridos no Body da requisição',
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    return await this.userRepository.updateUser(existingUser.id, updateUserDto);
   }
 
   async getWishlist(userEmail: string) {
-    const existingUser = await this.findByEmail(userEmail);
-    if (!existingUser) {
-      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
-    }
+    const user = await this.findByEmail(userEmail);
 
-    return await this.wishlistRepository.returnWishlist(existingUser.id);
+    return await this.wishlistRepository.returnWishlist(user.id);
   }
 
   async addToWishlist(userEmail: string, bookId: string): Promise<Wishlist> {
-    const existingUser = await this.findByEmail(userEmail);
+    const user = await this.findByEmail(userEmail);
     await this.booksService.findOne(bookId);
-    if (!existingUser) {
-      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
-    }
 
     return await this.wishlistRepository.addToWishlist({
-      userId: existingUser.id,
+      userId: user.id,
       bookId,
     });
   }
 
   async removeFromWishlist(userEmail: string, bookId: string) {
-    const existingUser = await this.findByEmail(userEmail);
-    if (!existingUser) {
-      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
-    }
+    const user = await this.findByEmail(userEmail);
 
     const bookListed = await this.wishlistRepository.findBookWishlisted({
-      userId: existingUser.id,
+      userId: user.id,
       bookId,
     });
     if (bookListed === null) {
@@ -94,7 +93,7 @@ export class UsersService {
     }
 
     return this.wishlistRepository.removeBookFromWishlist({
-      userId: existingUser.id,
+      userId: user.id,
       bookId,
     });
   }
@@ -107,9 +106,6 @@ export class UsersService {
 
   async accessPublicWishlist(hash: string): Promise<Book[]> {
     const user = await this.userRepository.findUserHash(hash);
-    if (!user) {
-      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
-    }
     return await this.wishlistRepository.returnWishlist(user.id);
   }
 }

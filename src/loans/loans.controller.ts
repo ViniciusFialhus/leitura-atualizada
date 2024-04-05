@@ -8,18 +8,21 @@ import {
   Patch,
   Post,
   Headers,
+  UseGuards,
 } from '@nestjs/common';
 
-import { Request } from 'express';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
 import { LoansService } from './loans.service';
+import { AuthenticatedUserGuard } from 'src/auth/guards/authenticated-user.guard';
+import { AdminAccessGuard } from 'src/auth/guards/admin.guard';
 
 @Controller('loan-requests')
 export class LoansController {
   constructor(private readonly loansService: LoansService) {}
 
   @Post()
+  @UseGuards(AuthenticatedUserGuard)
   @HttpCode(HttpStatus.OK)
   create(
     @Body() createLoanDto: CreateLoanDto,
@@ -29,12 +32,14 @@ export class LoansController {
   }
 
   @Get()
+  @UseGuards(AuthenticatedUserGuard, AdminAccessGuard)
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.loansService.findAll();
   }
 
   @Patch(':id')
+  @UseGuards(AuthenticatedUserGuard, AdminAccessGuard)
   @HttpCode(HttpStatus.OK)
   update(
     @Param('id') id: string,
