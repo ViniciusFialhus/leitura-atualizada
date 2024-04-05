@@ -53,17 +53,17 @@ export class AuthController {
   }
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
-  async refreshTokens(@Req() req: Request) {
+  refreshTokens(@Req() req: Request) {
     const userEmail = req.user['email'];
     const refreshToken = req.user['refreshToken'];
-    return await this.authService.refreshAccess(userEmail, refreshToken);
+    return this.authService.refreshAccess(userEmail, refreshToken);
   }
 
   @UseGuards(AuthenticatedUserGuard, AdminAccessGuard)
   @Patch('promote/:email')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async promote(@Param('email') userEmail: string) {
-    return await this.authService.promoteUser(userEmail);
+  promote(@Param('email') userEmail: string) {
+    return this.authService.promoteUser(userEmail);
   }
 
   @UseGuards(AuthenticatedUserGuard)
@@ -79,7 +79,7 @@ export class AuthController {
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
 
-    await this.authService.logout(tokenData.email, refreshToken);
+    this.authService.logout(tokenData.email, refreshToken);
 
     res.end();
   }
