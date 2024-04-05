@@ -39,15 +39,16 @@ export class UsersService {
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    const existingUser = await this.findByEmail(createUserDto.email);
-    if (existingUser) {
+    try {
+      await this.findByEmail(createUserDto.email);
       throw new HttpException('Usuario já existente', HttpStatus.BAD_REQUEST);
-    }
-    createUserDto.username = generateFromEmail(createUserDto.email);
-    createUserDto.shareableHash = '####################';
-    createUserDto.refreshToken = null;
+    } catch (error) {
+      createUserDto.username = generateFromEmail(createUserDto.email);
+      createUserDto.shareableHash = '####################';
+      createUserDto.refreshToken = null;
 
-    return await this.userRepository.createUser(createUserDto);
+      return await this.userRepository.createUser(createUserDto);
+    }
   }
 
   async updateUser(email: string, updateUserDto: UpdateUserDto) {
