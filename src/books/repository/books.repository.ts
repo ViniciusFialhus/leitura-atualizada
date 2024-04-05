@@ -40,6 +40,16 @@ export class BooksRepository {
   }
 
   async removeBook(id: string) {
+    await this.prisma.wishlist.deleteMany({
+      where: {
+        bookId: id,
+      },
+    });
+    await this.prisma.loan.deleteMany({
+      where: {
+        bookId: id,
+      },
+    });
     return await this.prisma.book.delete({
       where: {
         id,

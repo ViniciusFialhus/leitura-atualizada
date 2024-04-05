@@ -21,39 +21,53 @@ export class BooksService {
       throw new HttpException('Livro já cadastrado', HttpStatus.BAD_REQUEST);
     }
 
-    try {
-      const bookInfo = await this.httpSevice.axiosRef.get(
-        `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`,
-      );
+    if (isbn.length > 0) {
+      try {
+        await this.httpSevice.axiosRef
+          .get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
+          .then(async (response) => {
+            const bookInfo = await response.data.items[0].volumeInfo;
 
-      let image: string = bookInfo.data.items[0].volumeInfo.imageLinks;
-      const publishedDate: Date = new Date(
-        bookInfo.data.items[0].volumeInfo.publishedDate,
-      );
+            let image: string = bookInfo.imageLinks;
+            const publishedDate: Date = new Date(bookInfo.publishedDate);
 
-      if (image === undefined) {
-        image = null;
-      } else {
-        image = bookInfo.data.items[0].volumeInfo.imageLinks.smallThumbnail;
+            if (image === undefined) {
+              image = null;
+            } else {
+              image = bookInfo.imageLinks.smallThumbnail;
+            }
+
+            const newBook: Book = {
+              title: createBookDto.title || bookInfo.title,
+              author: createBookDto.author || bookInfo.authors[0],
+              genre: createBookDto.genre || bookInfo.categories[0],
+              description:
+                createBookDto.description || bookInfo.description || null,
+              isbn: isbn,
+              publishedAt: createBookDto.publishedAt || publishedDate || null,
+              imgUrl: createBookDto.imgUrl || image || null,
+              status: BookStatus.AVAILABLE,
+            };
+            return await this.booksRepository.createBook(newBook);
+          });
+      } catch (error) {
+        throw new HttpException(
+          'Data could not be recovered',
+          HttpStatus.BAD_REQUEST,
+        );
       }
-
+    } else {
       const newBook: Book = {
-        title: bookInfo.data.items[0].volumeInfo.title,
-        author: bookInfo.data.items[0].volumeInfo.authors[0],
-        genre: bookInfo.data.items[0].volumeInfo.categories[0],
-        description: bookInfo.data.items[0].volumeInfo.description || null,
-        isbn: isbn,
-        publishedAt: publishedDate || null,
-        imgUrl: image || null,
+        title: createBookDto.title,
+        author: createBookDto.author,
+        genre: createBookDto.genre,
+        description: createBookDto.description,
+        isbn: null,
+        publishedAt: createBookDto.publishedAt,
+        imgUrl: createBookDto.imgUrl,
         status: BookStatus.AVAILABLE,
       };
-
       return await this.booksRepository.createBook(newBook);
-    } catch (error) {
-      throw new HttpException(
-        'Data could not be recovered',
-        HttpStatus.BAD_REQUEST,
-      );
     }
   }
 
