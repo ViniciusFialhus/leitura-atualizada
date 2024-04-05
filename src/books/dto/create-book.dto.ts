@@ -9,6 +9,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { Book } from '../entities/book.entity';
+import { BookStatus } from '@prisma/client';
 
 export class CreateBookDto implements Book {
   @IsNotEmpty({ message: 'Can`t be empty' })
@@ -28,7 +29,6 @@ export class CreateBookDto implements Book {
   @IsISBN(undefined, { message: 'Must be a valid ISBN code' })
   isbn: string;
 
-
   @IsString({ message: 'Must be a String' })
   @IsUrl(undefined, { message: 'Must be a valid URL' })
   imgUrl: string;
@@ -47,4 +47,7 @@ export class CreateBookDto implements Book {
   @IsString({ message: 'Must be a String' })
   @IsDate({ message: 'Must`ve a valid JS Date format' })
   publishedAt: Date;
+
+  @IsOptional()
+  status: BookStatus;
 }

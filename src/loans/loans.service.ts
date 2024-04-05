@@ -1,11 +1,19 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { addDays, isFriday, isSaturday, isSunday, isThursday, isWednesday } from 'date-fns';
-import { Request } from 'express';
+import {
+  addDays,
+  isFriday,
+  isSaturday,
+  isSunday,
+  isThursday,
+  isWednesday,
+} from 'date-fns';
 import { AuthService } from 'src/auth/auth.service';
 import { UsersService } from 'src/users/users.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
 import { LoansRepository } from './repository/loans-repository';
+import { BooksService } from 'src/books/books.service';
+import { LoanStatus, BookStatus } from '@prisma/client';
 
 @Injectable()
 export class LoansService {
@@ -13,42 +21,33 @@ export class LoansService {
     private loansRepository: LoansRepository,
     private authService: AuthService,
     private userService: UsersService,
-  ) { }
+    private bookService: BooksService,
+  ) {}
 
-  async create(createLoanDto: CreateLoanDto, token: string) {
-    const isBookExist = await this.loansRepository.findBook(
-      createLoanDto.bookId,
-    );
-    const data = await this.authService.decryptToken(token);
-    const userExists = await this.userService.findByEmail(data.email);
-    const pickupDate = new Date()
-    let _dueDate: Date = addDays(pickupDate, 3)
+  async createLoanRequest(createLoanDto: CreateLoanDto, email: string) {
+    const userData = await this.userService.findByEmail(email);
+    const bookData = await this.bookService.findOne(createLoanDto.bookId);
+    const pickupDate = new Date();
 
-    if (!isBookExist) {
-      throw new HttpException('Livro não encontrado', HttpStatus.NOT_FOUND);
-    }
-
-    if (!userExists) {
-      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
-    }
-
-    if (isWednesday(pickupDate) || isThursday(pickupDate) || isFriday(pickupDate)) {
-      _dueDate = addDays(pickupDate, 5);
-    }
-
-    if (isSaturday(pickupDate) || isSunday(pickupDate)) {
-      throw new HttpException('não fazemos emprestimos nos finais de semana', HttpStatus.BAD_REQUEST)
-    }
-
-    const loanCreated = {
-      bookId: isBookExist.id,
-      userId: userExists.id,
+    const loanRequest = {
+      bookId: bookData.id,
+      userId: userData.id,
       createdAt: new Date(),
+      dueDate: pickupDate,
       pickupDate,
-      dueDate: _dueDate,
     };
 
-    const loan = await this.loansRepository.createLoan(loanCreated);
+    const loan = await this.loansRepository.createLoan(loanRequest);
+    const wishlist = await this.userService.getWishlist(userData.id);
+    let bookPresent = false;
+    wishlist.forEach((book) => {
+      if (book.id === bookData.id) {
+        return (bookPresent = true);
+      }
+    });
+    if (!bookPresent) {
+      await this.userService.addToWishlist(userData.email, bookData.id);
+    }
 
     return {
       bookId: loan.bookId,
@@ -57,56 +56,59 @@ export class LoansService {
   }
 
   async findAll() {
-    // const user = await this.userService.findByEmail(data.email);
-
-    // if (!user.isAdm) {
-    //   throw new HttpException(
-    //     'Rota somente para administradores',
-    //     HttpStatus.FORBIDDEN,
-    //   );
-    // }
-
     return await this.loansRepository.findLoans();
   }
 
-  async update(id: string, updateLoanDto: UpdateLoanDto, token: string) {
-    const data = await this.authService.decryptToken(token);
-    const user = await this.userService.findByEmail(data.email);
-
-    if (!user.isAdm) {
-      throw new HttpException(
-        'Rota somente para administradores',
-        HttpStatus.FORBIDDEN,
-      );
-    }
-
+  async updateLoanStatus(id: string, updateLoanDto: UpdateLoanDto) {
     const loanExists = await this.loansRepository.findLoan(id);
 
-    if (!loanExists) {
+    if (loanExists === null) {
       throw new HttpException(
         'Empréstimo não encontrado',
         HttpStatus.NOT_FOUND,
       );
     }
 
-    const loanUpdated = await this.loansRepository.updateLoan(
-      id,
-      updateLoanDto,
-    );
+    const pickupDate = new Date();
+    let _dueDate: Date = addDays(pickupDate, 3);
+    if (
+      isWednesday(pickupDate) ||
+      isThursday(pickupDate) ||
+      isFriday(pickupDate)
+    ) {
+      _dueDate = addDays(pickupDate, 5);
+    }
 
-    if (!loanUpdated) {
+    if (isSaturday(pickupDate) || isSunday(pickupDate)) {
       throw new HttpException(
-        'Erro ao atualizar o empréstimo',
+        'Não fazemos empréstimos nos finais de semana',
         HttpStatus.BAD_REQUEST,
       );
     }
-
-    return {
-      message: 'Empréstimo atualizado com sucesso',
-    };
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} loan`;
+    if (updateLoanDto.status === 'APPROVED') {
+      const uploadData = {
+        dueDate: _dueDate,
+        pickupDate: pickupDate,
+        status: LoanStatus.APPROVED,
+      };
+      try {
+        const wishlist = await this.userService.getWishlist(loanExists.userId);
+        if (wishlist.length > 0) {
+          await this.userService.removeFromWishlist(
+            loanExists.userId,
+            loanExists.bookId,
+          );
+        }
+        await this.bookService.updateBook(loanExists.bookId, {
+          status: BookStatus.LOANED,
+        });
+        return await this.loansRepository.updateLoan(id, uploadData);
+      } catch (error) {
+        throw new HttpException(
+          'Erro ao atualizar o empréstimo',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
   }
 }
