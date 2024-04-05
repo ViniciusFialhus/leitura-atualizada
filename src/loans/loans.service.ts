@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { addDays, isSaturday, isSunday } from 'date-fns';
-import { Request } from 'express';
 import { AuthService } from 'src/auth/auth.service';
 import { UsersService } from 'src/users/users.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
@@ -13,7 +12,7 @@ export class LoansService {
     private loansRepository: LoansRepository,
     private authService: AuthService,
     private userService: UsersService,
-  ) {}
+  ) { }
 
   async create(createLoanDto: CreateLoanDto, token: string) {
     const isBookExist = await this.loansRepository.findBook(
@@ -44,7 +43,7 @@ export class LoansService {
       userId: userExists.id,
       createdAt: new Date(),
       pickupDate: new Date(),
-      dueDate: _dueDate,
+      dueDate: new Date
     };
 
     const loan = await this.loansRepository.createLoan(loanCreated);
