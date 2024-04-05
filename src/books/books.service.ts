@@ -4,6 +4,7 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { Book } from './entities/book.entity';
 import { BooksRepository } from './repository/books.repository';
 import { HttpService } from '@nestjs/axios';
+import { BookStatus } from '@prisma/client';
 
 @Injectable()
 export class BooksService {
@@ -44,6 +45,7 @@ export class BooksService {
         isbn: isbn,
         publishedAt: publishedDate || null,
         imgUrl: image || null,
+        status: BookStatus.AVAILABLE,
       };
 
       return await this.booksRepository.createBook(newBook);
