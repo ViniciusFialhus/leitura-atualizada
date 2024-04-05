@@ -14,13 +14,13 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
+import { ErrorSwagger } from '../helpers/swagger/ErrorSwagger';
 import { AuthService } from './auth.service';
 import { AuthLoginDto } from './dtos/auth-login.dto';
 import { AdminAccessGuard } from './guards/admin.guard';
 import { AuthenticatedUserGuard } from './guards/authenticated-user.guard';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
 import { RefreshTokenGuard } from './guards/jwt-refresh.guard';
-import { ErrorSwagger } from './swagger/ErrorSwagger';
 import { ResponseLogin } from './swagger/ResponseLogin';
 import { ResponsePromote } from './swagger/ResponsePromote';
 import { Cookies } from './utils/cookies.decorator';
