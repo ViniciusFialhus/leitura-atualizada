@@ -4,15 +4,16 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
+  Put,
   Post,
   Query,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { Book } from './entities/book.entity';
 import { AuthenticatedUserGuard } from 'src/auth/guards/authenticated-user.guard';
 import { AdminAccessGuard } from 'src/auth/guards/admin.guard';
 
@@ -22,6 +23,7 @@ export class BooksController {
 
   @Post()
   @UseGuards(AuthenticatedUserGuard, AdminAccessGuard)
+  @HttpCode(HttpStatus.CREATED)
   createBook(@Body() createBookDto: CreateBookDto) {
     return this.booksService.create(createBookDto);
   }
@@ -32,7 +34,7 @@ export class BooksController {
   }
 
   @Get('search')
-  searchBook(@Query() query: Book) {
+  searchBook(@Query('q') query: string) {
     return this.booksService.searchBook(query);
   }
 
@@ -41,13 +43,14 @@ export class BooksController {
     return this.booksService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseGuards(AuthenticatedUserGuard, AdminAccessGuard)
   updateBook(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
-    return this.booksService.update(id, updateBookDto);
+    return this.booksService.updateBook(id, updateBookDto);
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthenticatedUserGuard, AdminAccessGuard)
   removeBook(@Param('id') id: string) {
     return this.booksService.remove(id);
