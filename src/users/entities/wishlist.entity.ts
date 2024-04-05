@@ -1,4 +1,4 @@
 export interface Wishlist {
-  userid: string;
+  userId: string;
   bookId: string;
 }

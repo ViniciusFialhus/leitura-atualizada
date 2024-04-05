@@ -112,15 +112,15 @@ export class AuthService {
   async googleLogin(userData: AuthGoogleDto) {
     const userFound = await this.usersService.findByEmail(userData.email);
 
-    if (!userFound && userData.accessToken) {
-      await this.usersService.createUser({
-        email: userData.email,
-        name: userData.firstName + ' ' + userData.lastName,
-        password: '########',
-        isAdm: userData.isAdm,
-        username: '########',
-      });
-    }
+    // if (!userFound && userData.accessToken) {
+    //   await this.usersService.createUser({
+    //     email: userData.email,
+    //     name: userData.firstName + ' ' + userData.lastName,
+    //     password: '########',
+    //     isAdm: userData.isAdm,
+    //     username: '########',
+    //   });
+    // }
   }
 
   async retrieveGoogleEmail(token: string) {
