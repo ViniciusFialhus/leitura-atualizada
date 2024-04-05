@@ -7,7 +7,6 @@ import {
   isThursday,
   isWednesday,
 } from 'date-fns';
-import { AuthService } from 'src/auth/auth.service';
 import { UsersService } from 'src/users/users.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
@@ -19,13 +18,13 @@ import { LoanStatus, BookStatus } from '@prisma/client';
 export class LoansService {
   constructor(
     private loansRepository: LoansRepository,
-    private authService: AuthService,
     private userService: UsersService,
     private bookService: BooksService,
   ) {}
 
   async createLoanRequest(createLoanDto: CreateLoanDto, email: string) {
     const userData = await this.userService.findByEmail(email);
+
     const bookData = await this.bookService.findOne(createLoanDto.bookId);
     const pickupDate = new Date();
 
@@ -37,7 +36,6 @@ export class LoansService {
       pickupDate,
     };
 
-    const loan = await this.loansRepository.createLoan(loanRequest);
     const wishlist = await this.userService.getWishlist(userData.id);
     let bookPresent = false;
     wishlist.forEach((book) => {
@@ -49,6 +47,7 @@ export class LoansService {
       await this.userService.addToWishlist(userData.email, bookData.id);
     }
 
+    const loan = await this.loansRepository.createLoan(loanRequest);
     return {
       bookId: loan.bookId,
       pickupDate: loan.pickupDate,
@@ -93,12 +92,14 @@ export class LoansService {
       };
       try {
         const wishlist = await this.userService.getWishlist(loanExists.userId);
-        if (wishlist.length > 0) {
-          await this.userService.removeFromWishlist(
-            loanExists.userId,
-            loanExists.bookId,
-          );
-        }
+        wishlist.forEach(async (book) => {
+          if (book.id === loanExists.bookId) {
+            await this.userService.removeFromWishlist(
+              loanExists.userId,
+              loanExists.bookId,
+            );
+          }
+        });
         await this.bookService.updateBook(loanExists.bookId, {
           status: BookStatus.LOANED,
         });

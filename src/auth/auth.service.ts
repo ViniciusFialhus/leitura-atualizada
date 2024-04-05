@@ -155,8 +155,11 @@ export class AuthService {
   async refreshAccess(userEmail: string, refreshToken: string) {
     const user = await this.usersService.findByEmail(userEmail);
 
-    if (!user || !user.refreshToken || refreshToken !== user.refreshToken)
-      throw new HttpException('Access Denied', HttpStatus.FORBIDDEN);
+    if (refreshToken !== user.refreshToken)
+      throw new HttpException(
+        'Expired refresh token, login needed',
+        HttpStatus.FORBIDDEN,
+      );
 
     const tokens = await this.generateTokens({
       sub: user.id,

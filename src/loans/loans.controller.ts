@@ -45,7 +45,7 @@ export class LoansController {
     }
   }
 
-  @Get()
+  @Get('all')
   @UseGuards(AuthenticatedUserGuard, AdminAccessGuard)
   @HttpCode(HttpStatus.OK)
   findAll() {

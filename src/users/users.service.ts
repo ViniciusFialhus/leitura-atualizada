@@ -19,6 +19,7 @@ export class UsersService {
 
   async findByEmail(email: string) {
     const existingUser = await this.userRepository.findUnique(email);
+
     if (!existingUser) {
       throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
     }
@@ -63,10 +64,13 @@ export class UsersService {
     }
   }
 
-  async getWishlist(userEmail: string) {
-    const user = await this.findByEmail(userEmail);
-
-    return await this.wishlistRepository.returnWishlist(user.id);
+  async getWishlist(userData: string) {
+    if (userData.includes('@')) {
+      const user = await this.findByEmail(userData);
+      return await this.wishlistRepository.returnWishlist(user.id);
+    } else {
+      return await this.wishlistRepository.returnWishlist(userData);
+    }
   }
 
   async addToWishlist(userEmail: string, bookId: string): Promise<Wishlist> {
@@ -79,11 +83,27 @@ export class UsersService {
     });
   }
 
-  async removeFromWishlist(userEmail: string, bookId: string) {
-    const user = await this.findByEmail(userEmail);
+  async removeFromWishlist(userData: string, bookId: string) {
+    if (userData.includes('@')) {
+      const user = await this.findByEmail(userData);
+      const bookListed = await this.wishlistRepository.findBookWishlisted({
+        userId: user.id,
+        bookId,
+      });
+      if (bookListed === null) {
+        throw new HttpException(
+          'Esse item não consta nessa lista',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
 
+      return this.wishlistRepository.removeBookFromWishlist({
+        userId: user.id,
+        bookId,
+      });
+    }
     const bookListed = await this.wishlistRepository.findBookWishlisted({
-      userId: user.id,
+      userId: userData,
       bookId,
     });
     if (bookListed === null) {
@@ -94,7 +114,7 @@ export class UsersService {
     }
 
     return this.wishlistRepository.removeBookFromWishlist({
-      userId: user.id,
+      userId: userData,
       bookId,
     });
   }
