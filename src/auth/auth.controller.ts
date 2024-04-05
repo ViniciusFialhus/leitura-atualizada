@@ -39,7 +39,6 @@ export class AuthController {
   @UseGuards(GoogleOauthGuard)
   @HttpCode(HttpStatus.OK)
   async googleAuthCallback(@Req() req, @Res() res: Response) {
-    console.log(req.cookies);
     const googleToken = req.user.accessToken;
     const googleRefreshToken = req.user.refreshToken;
 
@@ -48,14 +47,15 @@ export class AuthController {
       httpOnly: true,
     });
 
-    res.redirect('back');
-    return await this.authService.googleLogin(req.user);
+    await this.authService.googleLogin(req.user);
+    return res.redirect('back');
   }
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
   refreshTokens(@Req() req: Request) {
     const userEmail = req.user['email'];
     const refreshToken = req.user['refreshToken'];
+
     return this.authService.refreshAccess(userEmail, refreshToken);
   }
 
