@@ -1,3 +1,4 @@
+import { HttpService } from '@nestjs/axios';
 import {
   HttpException,
   HttpStatus,
@@ -6,7 +7,10 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import axios from 'axios';
 import * as bcrypt from 'bcrypt';
+import { UsersService } from 'src/users/users.service';
+import { AuthGoogleDto } from './dtos/auth-google.dto';
 import { AuthLoginDto } from './dtos/auth-login.dto';
 import { AuthPayloadDto } from './dtos/auth-payload.dto';
 import { AuthLogin as UserCredentials } from './entities/auth-login.entity';
@@ -21,7 +25,7 @@ export class AuthService {
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
     private readonly httpService: HttpService,
-  ) {}
+  ) { }
 
   async generateTokens(payload: AuthPayloadDto): Promise<{
     accessToken: string;
@@ -71,7 +75,7 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new HttpException(
         'Email ou senha incorretos.',
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -118,7 +122,7 @@ export class AuthService {
           email: userData.email,
           name: userData.firstName + ' ' + userData.lastName,
           password: '########',
-          isAdm: userData.isAdm,
+          isAdm: false,
           username: '########',
           shareableHash: '####################',
           refreshToken: null,

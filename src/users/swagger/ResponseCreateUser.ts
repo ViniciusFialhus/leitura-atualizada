@@ -1,28 +1,30 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { LoanStatus } from "@prisma/client";
 
-export class Loan {
+export class ResponseCreateuser {
   @ApiProperty()
   id: string;
 
   @ApiProperty()
-  userId: string;
+  name: string;
 
   @ApiProperty()
-  bookId: string;
+  email: string;
 
   @ApiProperty()
-  pickupDate: Date;
+  isAdm: boolean;
 
   @ApiProperty()
-  dueDate: Date;
+  password: string;
 
   @ApiProperty()
-  status: LoanStatus;
+  username: string;
 
   @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty()
+  refreshToken: string;
 }

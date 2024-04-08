@@ -4,7 +4,7 @@ import { WishlistDto } from '../dto/wishlist.dto';
 
 @Injectable()
 export class WishlistRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async returnWishlist(userId: string) {
     const wishlistedEntries = await this.prisma.wishlist.findMany({

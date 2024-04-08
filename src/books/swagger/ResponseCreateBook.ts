@@ -1,24 +1,29 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { LoanStatus } from "@prisma/client";
 
-export class Loan {
+export class ResponseCreateBook {
   @ApiProperty()
   id: string;
 
   @ApiProperty()
-  userId: string;
+  title: string;
 
   @ApiProperty()
-  bookId: string;
+  author: string;
 
   @ApiProperty()
-  pickupDate: Date;
+  genre: string;
 
   @ApiProperty()
-  dueDate: Date;
+  description: string;
 
   @ApiProperty()
-  status: LoanStatus;
+  isbn: string;
+
+  @ApiProperty()
+  imgUrl: string;
+
+  @ApiProperty()
+  publishedAt: Date;
 
   @ApiProperty()
   createdAt: Date;
