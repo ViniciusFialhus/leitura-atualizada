@@ -3,12 +3,10 @@ import { Book, User, Wishlist } from '@prisma/client';
 import { generateFromEmail } from 'unique-username-generator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { WishlistDto } from './dto/wishlist.dto';
 import { WishlistRepository } from './repository/user-wishlist.repository';
 import { UserRepository } from './repository/user.repository';
 import { HttpService } from '@nestjs/axios';
 import { BooksService } from 'src/books/books.service';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {

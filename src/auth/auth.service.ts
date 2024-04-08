@@ -1,4 +1,3 @@
-import { HttpService } from '@nestjs/axios';
 import {
   HttpException,
   HttpStatus,
@@ -7,14 +6,11 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import axios from 'axios';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from 'src/users/users.service';
 import { AuthGoogleDto } from './dtos/auth-google.dto';
 import { AuthLoginDto } from './dtos/auth-login.dto';
 import { AuthPayloadDto } from './dtos/auth-payload.dto';
 import { AuthLogin as UserCredentials } from './entities/auth-login.entity';
-import { AuthGoogleDto } from './dtos/auth-google.dto';
 import { UsersService } from 'src/users/users.service';
 import { HttpService } from '@nestjs/axios';
 
@@ -25,7 +21,7 @@ export class AuthService {
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
     private readonly httpService: HttpService,
-  ) { }
+  ) {}
 
   async generateTokens(payload: AuthPayloadDto): Promise<{
     accessToken: string;

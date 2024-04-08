@@ -3,10 +3,11 @@ import {
   IsDate,
   IsISBN,
   IsOptional,
+  IsNotEmpty,
   IsString,
   IsUrl,
   MaxLength,
-  MinLength
+  MinLength,
 } from 'class-validator';
 import { Book } from '../entities/book.entity';
 import { BookStatus } from '@prisma/client';
@@ -53,7 +54,7 @@ export class CreateBookDto implements Book {
   @IsOptional()
   @IsString({ message: 'Must be a String' })
   @IsDate({ message: 'Must`ve a valid JS Date format' })
-  @ApiProperty({ default: "Date", required: false })
+  @ApiProperty({ default: 'Date', required: false })
   publishedAt: Date;
 
   @IsOptional()
