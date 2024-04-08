@@ -6,27 +6,35 @@ import { WishlistDto } from '../dto/wishlist.dto';
 export class WishlistRepository {
   constructor(private prisma: PrismaService) { }
 
-  async findWishUser(userId: string) {
-    return await this.prisma.wishlist.findMany({
+  async returnWishlist(userId: string) {
+    const wishlistedEntries = await this.prisma.wishlist.findMany({
       where: {
-        userId
-      }
-    })
+        userId,
+      },
+      include: { book: true },
+    });
+
+    const wishlistedBooks = wishlistedEntries.map(
+      (bookEntry) => bookEntry.book,
+    );
+
+    return wishlistedBooks;
   }
 
-  async createWishlistingBooks(createWishlist: WishlistDto) {
-    return { wishlist: createWishlist }
+  async addToWishlist(createWishlistDto: WishlistDto) {
+    createWishlistDto;
+    return await this.prisma.wishlist.create({
+      data: createWishlistDto,
+    });
   }
 
-  async removeWishlistingBooks(id: string) {
-    return { wishlist: id }
+  async removeBookFromWishlist(removeFromWishlistDto: WishlistDto) {
+    return await this.prisma.wishlist.deleteMany({
+      where: removeFromWishlistDto,
+    });
   }
 
-  async findWishlist(id: string) {
-    return { wishlist: id }
-  }
-
-  async findShareLink(id: string) {
-    return { wishlist: id }
+  async findBookWishlisted(bookListed: WishlistDto) {
+    return await this.prisma.wishlist.findFirst({ where: bookListed });
   }
 }

@@ -11,7 +11,6 @@ export class AdminAccessStrategy extends PassportStrategy(Strategy, 'admin') {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
-    private httpSevice: HttpService,
   ) {
     super();
   }

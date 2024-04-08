@@ -1,7 +1,10 @@
+import { LoanStatus } from '@prisma/client';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from "@nestjs/swagger";
-import { LoanStatus } from "@prisma/client";
 
 export class UpdateLoanDto {
+  @IsNotEmpty({ message: 'Can`t be empty' })
   @ApiProperty()
-  status: LoanStatus
+  @IsString({ message: 'Must be a String' })
+  status: LoanStatus;
 }

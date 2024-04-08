@@ -1,0 +1,17 @@
+runtime: nodejs
+env: flex
+instance_class: F1
+readiness_check:
+  path: "/readiness_check"
+  check_interval_sec: 60
+  timeout_sec: 20
+  failure_threshold: 2
+  success_threshold: 2
+  app_start_timeout_sec: 300
+
+liveness_check:
+  path: "/books/all"
+  check_interval_sec: 60
+  timeout_sec: 20
+  failure_threshold: 2
+  success_threshold: 2

@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsEmail,
+  IsNotEmpty,
   IsString,
   Matches,
   MaxLength,
@@ -15,6 +16,7 @@ export class CreateUserDto implements User {
   @ApiProperty()
   name: string;
 
+  @IsNotEmpty({ message: 'Can`t be empty' })
   @IsEmail(undefined, { message: 'Must be a valid email' })
   @ApiProperty()
   email: string;
@@ -23,6 +25,7 @@ export class CreateUserDto implements User {
   @ApiProperty()
   isAdm: boolean;
 
+  @IsNotEmpty({ message: 'Can`t be empty' })
   @IsString({ message: 'Must be a String' })
   @MinLength(8, { message: 'Must have at least 8 characteres' })
   @MaxLength(32, { message: 'Must have less then 32 characteres' })
@@ -36,6 +39,7 @@ export class CreateUserDto implements User {
   @ApiProperty()
   password: string;
 
+  @IsNotEmpty({ message: 'Can`t be empty' })
   @IsString({ message: 'Must be a String' })
   @MinLength(4, { message: 'Must have at least 4 characteres' })
   @ApiProperty()
@@ -45,7 +49,7 @@ export class CreateUserDto implements User {
   @ApiProperty()
   shareableHash: string;
 
-  @IsString({ message: 'Must be a String' })
   @ApiProperty()
+  @IsString({ message: 'Must be a String' })
   refreshToken: string;
 }

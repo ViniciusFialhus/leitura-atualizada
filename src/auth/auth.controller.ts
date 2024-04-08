@@ -39,18 +39,17 @@ export class AuthController {
   async login(@Body() user: AuthLoginDto) {
     return await this.authService.login(user);
   }
-
-  @Get('google')
+  
+  @Post('google')
   @ApiOperation({ summary: "Efetua login de um usuário com google", })
   @UseGuards(GoogleOauthGuard)
   async auth() { }
 
-  @Get('google/callback')
+  @Post('google/callback')
   @UseGuards(GoogleOauthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Rota que complementa o fluxo de login com google" })
   async googleAuthCallback(@Req() req, @Res() res: Response) {
-    console.log(req.cookies);
     const googleToken = req.user.accessToken;
     const googleRefreshToken = req.user.refreshToken;
 
@@ -59,34 +58,35 @@ export class AuthController {
       httpOnly: true,
     });
 
-    res.redirect('back');
-    return await this.authService.googleLogin(req.user);
+    await this.authService.googleLogin(req.user);
+    return res.redirect('back');
   }
 
-  @UseGuards(RefreshTokenGuard)
   @Get('refresh')
+  @UseGuards(RefreshTokenGuard)
   @ApiOperation({ summary: 'Atualiza os tokens do usuário logado no sistema' })
   @ApiResponse({ status: 200, description: "Operação bem sucedida", type: ResponseLogin })
   @ApiResponse({ status: 403, description: "Sem permissão", type: ErrorSwagger })
-  async refreshTokens(@Req() req: Request) {
+  refreshTokens(@Req() req: Request) {
     const userEmail = req.user['email'];
     const refreshToken = req.user['refreshToken'];
-    return await this.authService.refreshTokens(userEmail, refreshToken);
+
+    return this.authService.refreshAccess(userEmail, refreshToken);
   }
 
-  @UseGuards(AuthenticatedUserGuard, AdminAccessGuard)
   @Patch('promote/:email')
+  @UseGuards(AuthenticatedUserGuard, AdminAccessGuard)
   @ApiOperation({ summary: "Efetua login para admins no sistema" })
   @ApiResponse({ status: 200, description: "Operação bem sucedida", type: ResponsePromote })
   @ApiParam({ name: "email", description: "email do usuário" })
   @ApiResponse({ status: 404, description: "Usuário não encontrado", type: ErrorSwagger })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async promote(@Param('email') userEmail: string) {
-    return await this.authService.promoteUser(userEmail);
+  promote(@Param('email') userEmail: string) {
+    return this.authService.promoteUser(userEmail);
   }
 
-  @UseGuards(AuthenticatedUserGuard)
   @Post('logout')
+  @UseGuards(AuthenticatedUserGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: "Efetua logout da sessão atual do usuário logado" })
   @ApiResponse({ status: 200, description: "Operação bem sucedida" })
@@ -101,7 +101,7 @@ export class AuthController {
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
 
-    await this.authService.logout(tokenData.email, refreshToken);
+    this.authService.logout(tokenData.email, refreshToken);
 
     res.end();
   }

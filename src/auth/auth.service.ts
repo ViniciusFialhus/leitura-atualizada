@@ -14,6 +14,9 @@ import { AuthGoogleDto } from './dtos/auth-google.dto';
 import { AuthLoginDto } from './dtos/auth-login.dto';
 import { AuthPayloadDto } from './dtos/auth-payload.dto';
 import { AuthLogin as UserCredentials } from './entities/auth-login.entity';
+import { AuthGoogleDto } from './dtos/auth-google.dto';
+import { UsersService } from 'src/users/users.service';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class AuthService {
@@ -110,17 +113,22 @@ export class AuthService {
   }
 
   async googleLogin(userData: AuthGoogleDto) {
-    const userFound = await this.usersService.findByEmail(userData.email);
-
-    // if (!userFound && userData.accessToken) {
-    //   await this.usersService.createUser({
-    //     email: userData.email,
-    //     name: userData.firstName + ' ' + userData.lastName,
-    //     password: '########',
-    //     isAdm: userData.isAdm,
-    //     username: '########',
-    //   });
-    // }
+    try {
+      await this.usersService.findByEmail(userData.email);
+      return;
+    } catch (error) {
+      if (userData.accessToken) {
+        return await this.usersService.createUser({
+          email: userData.email,
+          name: userData.firstName + ' ' + userData.lastName,
+          password: '########',
+          isAdm: false,
+          username: '########',
+          shareableHash: '####################',
+          refreshToken: null,
+        });
+      }
+    }
   }
 
   async retrieveGoogleEmail(token: string) {
@@ -134,7 +142,7 @@ export class AuthService {
 
   async isTokenExpired(token: string): Promise<boolean> {
     try {
-      const response = await axios.get(
+      const response = await this.httpService.axiosRef.get(
         `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${token}`,
       );
 
@@ -148,24 +156,26 @@ export class AuthService {
     }
   }
 
-  async refreshTokens(userEmail: string, refreshToken: string) {
+  async refreshAccess(userEmail: string, refreshToken: string) {
     const user = await this.usersService.findByEmail(userEmail);
 
-    if (!user || !user.refreshToken || refreshToken !== user.refreshToken)
-      throw new HttpException('Access Denied', HttpStatus.FORBIDDEN);
+    if (refreshToken !== user.refreshToken)
+      throw new HttpException(
+        'Expired refresh token, login needed',
+        HttpStatus.FORBIDDEN,
+      );
 
     const tokens = await this.generateTokens({
       sub: user.id,
       email: user.email,
     });
-    await this.updateRefreshToken(user.email, tokens.refreshToken);
 
-    return tokens;
+    return tokens.accessToken;
   }
 
   async refreshGoogleToken(refreshToken: string): Promise<string> {
     try {
-      const response = await axios.post(
+      const response = await this.httpService.axiosRef.post(
         'https://accounts.google.com/o/oauth2/token',
         {
           client_id: process.env.GOOGLE_CLIENT_ID,
@@ -195,7 +205,7 @@ export class AuthService {
 
   async revokeGoogleToken(token: string) {
     try {
-      await axios.get(
+      await this.httpService.axiosRef.get(
         `https://accounts.google.com/o/oauth2/revoke?token=${token}`,
       );
     } catch (error) {

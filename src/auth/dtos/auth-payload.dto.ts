@@ -1,13 +1,15 @@
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString } from 'class-validator';
 import { AuthLogin } from '../entities/auth-login.entity';
 
 export class AuthPayloadDto implements Partial<AuthLogin> {
-  @IsString()
+  @IsNotEmpty({ message: 'Can`t be empty' })
   @ApiProperty()
+  @IsString({ message: 'Must be a String' })
   sub: string;
 
-  @IsEmail()
+  @IsNotEmpty({ message: 'Can`t be empty' })
   @ApiProperty()
+  @IsEmail(undefined, { message: 'Must be a valid email' })
   email: string;
 }

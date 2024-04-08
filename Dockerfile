@@ -1,45 +1,22 @@
-# FROM node:20
+FROM node:16 AS builder
 
-# # Define o diretório de trabalho dentro do contêiner
-# WORKDIR /usr
+WORKDIR /app
 
-# # Copia os arquivos de configuração do Node.js
-# COPY ./src/ ./src/
-# COPY ./prisma/ ./prisma/
-# COPY ./*.json ./
+COPY package.json ./
+COPY package-lock.json ./
+COPY prisma ./prisma/
 
-# # Instala as dependências do Node.js
-# RUN npm i
-
-# # Gera o cliente Prisma
-# RUN npm run prisma:generate
-
-# # Exponha a porta do aplicativo
-# EXPOSE 3000
-
-# # Comando para iniciar o seu aplicativo Node.js (altere conforme necessário)
-# CMD ["nest", "start"]
-
-
-# Usa a imagem oficial do Node.js versão 20 como base
-FROM node:20
-
-# Define o diretório de trabalho dentro do contêiner
-WORKDIR /usr/src/app
-
-# Copia os arquivos de configuração do Node.js e outros arquivos necessários
-COPY ./src ./src/
-COPY ./prisma ./prisma/
-COPY ./*.json ./
-
-# Instala as dependências do Node.js
 RUN npm install
 
-# Gera o cliente Prisma (se necessário)
-RUN npm run prisma:generate
+COPY . .
 
-# Expõe a porta 3000 para o aplicativo
-EXPOSE 3000
+RUN npm run build
 
-# Comando para iniciar o aplicativo Node.js
-CMD ["npm", "start"]
+FROM node:16
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 8080
+CMD [ "npm", "run", "start:prod" ]

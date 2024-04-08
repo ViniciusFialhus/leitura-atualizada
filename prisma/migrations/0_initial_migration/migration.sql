@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "BookStatus" AS ENUM ('AVAILABLE', 'LOANED');
+
+-- CreateEnum
 CREATE TYPE "LoanStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'OVERDUE');
 
 -- CreateTable
@@ -11,6 +14,7 @@ CREATE TABLE "users" (
     "username" VARCHAR(50) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "shareableHash" CHAR(20) NOT NULL,
     "refreshToken" TEXT,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
@@ -25,6 +29,7 @@ CREATE TABLE "books" (
     "description" VARCHAR(10000),
     "isbn" VARCHAR(20) NOT NULL,
     "imgUrl" VARCHAR(200),
+    "status" "BookStatus" NOT NULL DEFAULT 'AVAILABLE',
     "publishedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

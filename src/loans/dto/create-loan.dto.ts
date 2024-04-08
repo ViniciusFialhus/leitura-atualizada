@@ -1,11 +1,15 @@
+import { IsNotEmpty, IsUUID } from 'class-validator';
+import { Loan } from '../entities/loan.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID } from 'class-validator';
 
-export class CreateLoanDto {
+export class CreateLoanDto implements Loan {
+  @IsNotEmpty({ message: 'Can`t be empty' })
   @ApiProperty()
   @IsUUID('all', { message: 'Must be a valid UUID' })
   bookId: string;
 
+  @IsNotEmpty({ message: 'Can`t be empty' })
   @ApiProperty()
-  userId: string
+  @IsUUID('all', { message: 'Must be a valid UUID' })
+  userId: string;
 }
