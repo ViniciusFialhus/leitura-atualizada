@@ -47,6 +47,7 @@ export class UsersService {
       createUserDto.username = generateFromEmail(createUserDto.email);
       createUserDto.shareableHash = '####################';
       createUserDto.refreshToken = null;
+      createUserDto.isAdm = false;
 
       return await this.userRepository.createUser(createUserDto);
     }

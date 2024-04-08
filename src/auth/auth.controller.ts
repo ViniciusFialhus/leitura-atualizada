@@ -31,11 +31,11 @@ export class AuthController {
     return await this.authService.login(user);
   }
 
-  @Get('google')
+  @Post('google')
   @UseGuards(GoogleOauthGuard)
   async auth() {}
 
-  @Get('google/callback')
+  @Post('google/callback')
   @UseGuards(GoogleOauthGuard)
   @HttpCode(HttpStatus.OK)
   async googleAuthCallback(@Req() req, @Res() res: Response) {

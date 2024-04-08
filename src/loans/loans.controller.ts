@@ -5,7 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Patch,
+  Put,
   Post,
   Headers,
   UseGuards,
@@ -52,7 +52,7 @@ export class LoansController {
     return this.loansService.findAll();
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseGuards(AuthenticatedUserGuard, AdminAccessGuard)
   @HttpCode(HttpStatus.OK)
   update(@Param('id') id: string, @Body() updateLoanDto: UpdateLoanDto) {
