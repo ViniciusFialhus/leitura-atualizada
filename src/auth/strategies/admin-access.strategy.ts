@@ -4,7 +4,6 @@ import { Request } from 'express';
 import { Strategy } from 'passport-custom';
 import { UsersService } from 'src/users/users.service';
 import { AuthService } from '../auth.service';
-import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class AdminAccessStrategy extends PassportStrategy(Strategy, 'admin') {

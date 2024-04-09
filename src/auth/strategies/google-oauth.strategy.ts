@@ -11,7 +11,8 @@ export class GoogleOAuthStrategy extends PassportStrategy(
     super({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: 'https://leitura-atualizada.rj.r.appspot.com/auth/google',
+      callbackURL:
+        'https://leitura-atualizada.rj.r.appspot.com/auth/google/callback',
       scope: ['email', 'profile'],
     });
   }

@@ -44,7 +44,9 @@ export class UsersService {
       await this.findByEmail(createUserDto.email);
       throw new HttpException('Usuario já existente', HttpStatus.BAD_REQUEST);
     } catch (error) {
-      createUserDto.username = generateFromEmail(createUserDto.email);
+      if (!createUserDto.username) {
+        createUserDto.username = generateFromEmail(createUserDto.email);
+      }
       createUserDto.shareableHash = '####################';
       createUserDto.refreshToken = null;
       createUserDto.isAdm = false;
