@@ -123,7 +123,7 @@ export class UsersService {
   async generateShareLink(userEmail: string): Promise<string> {
     const hash: string = await this.generateRandomCode();
     await this.updateUser(userEmail, { shareableHash: hash });
-    return `http://localhost:3000/${hash}`;
+    return `https://leitura-atualizada.rj.r.appspot.com/${hash}`;
   }
 
   async accessPublicWishlist(hash: string): Promise<Book[]> {

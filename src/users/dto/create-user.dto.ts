@@ -22,7 +22,6 @@ export class CreateUserDto implements User {
   email: string;
 
   @IsBoolean({ message: 'Must be a boolean value' })
-  @ApiProperty()
   isAdm: boolean;
 
   @IsNotEmpty({ message: 'Can`t be empty' })

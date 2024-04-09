@@ -12,7 +12,13 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { ErrorSwagger } from '../helpers/swagger/ErrorSwagger';
 import { AuthService } from './auth.service';
@@ -26,29 +32,37 @@ import { ResponsePromote } from './swagger/ResponsePromote';
 import { Cookies } from './utils/cookies.decorator';
 
 @Controller('auth')
-@ApiTags("Auth")
+@ApiTags('Auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  @ApiOperation({ summary: "Efetua login de um usuário no sistema" })
-  @ApiResponse({ status: 200, description: "Operação bem sucedida", type: ResponseLogin })
-  @ApiResponse({ status: 400, description: "senha ou email incorreto.", type: ErrorSwagger })
-  @ApiBody({ type: AuthLoginDto, description: "Dados do usuário" })
+  @ApiOperation({ summary: 'Efetua login de um usuário no sistema' })
+  @ApiResponse({
+    status: 200,
+    description: 'Operação bem sucedida',
+    type: ResponseLogin,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Senha ou email incorreto.',
+    type: ErrorSwagger,
+  })
+  @ApiBody({ type: AuthLoginDto, description: 'Dados do usuário' })
   @HttpCode(HttpStatus.OK)
   async login(@Body() user: AuthLoginDto) {
     return await this.authService.login(user);
   }
-  
-  @Post('google')
-  @ApiOperation({ summary: "Efetua login de um usuário com google", })
-  @UseGuards(GoogleOauthGuard)
-  async auth() { }
 
-  @Post('google/callback')
+  @Get('google')
+  @ApiOperation({ summary: 'Efetua login de um usuário com google' })
+  @UseGuards(GoogleOauthGuard)
+  async auth() {}
+
+  @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: "Rota que complementa o fluxo de login com google" })
+  @ApiOperation({ summary: 'Rota que complementa o fluxo de login com google' })
   async googleAuthCallback(@Req() req, @Res() res: Response) {
     const googleToken = req.user.accessToken;
     const googleRefreshToken = req.user.refreshToken;
@@ -65,8 +79,16 @@ export class AuthController {
   @Get('refresh')
   @UseGuards(RefreshTokenGuard)
   @ApiOperation({ summary: 'Atualiza os tokens do usuário logado no sistema' })
-  @ApiResponse({ status: 200, description: "Operação bem sucedida", type: ResponseLogin })
-  @ApiResponse({ status: 403, description: "Sem permissão", type: ErrorSwagger })
+  @ApiResponse({
+    status: 200,
+    description: 'Operação bem sucedida',
+    type: ResponseLogin,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Sem permissão',
+    type: ErrorSwagger,
+  })
   refreshTokens(@Req() req: Request) {
     const userEmail = req.user['email'];
     const refreshToken = req.user['refreshToken'];
@@ -76,10 +98,21 @@ export class AuthController {
 
   @Patch('promote/:email')
   @UseGuards(AuthenticatedUserGuard, AdminAccessGuard)
-  @ApiOperation({ summary: "Efetua login para admins no sistema" })
-  @ApiResponse({ status: 200, description: "Operação bem sucedida", type: ResponsePromote })
-  @ApiParam({ name: "email", description: "email do usuário" })
-  @ApiResponse({ status: 404, description: "Usuário não encontrado", type: ErrorSwagger })
+  @ApiOperation({
+    summary:
+      'Concede privilégios de admin para uma conta, acessível apenas por admins',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Operação bem sucedida',
+    type: ResponsePromote,
+  })
+  @ApiParam({ name: 'email', description: 'email do usuário' })
+  @ApiResponse({
+    status: 404,
+    description: 'Usuário não encontrado',
+    type: ErrorSwagger,
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   promote(@Param('email') userEmail: string) {
     return this.authService.promoteUser(userEmail);
@@ -88,9 +121,13 @@ export class AuthController {
   @Post('logout')
   @UseGuards(AuthenticatedUserGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Efetua logout da sessão atual do usuário logado" })
-  @ApiResponse({ status: 200, description: "Operação bem sucedida" })
-  @ApiResponse({ status: 404, description: "Usuário não encontrado", type: ErrorSwagger })
+  @ApiOperation({ summary: 'Efetua logout da sessão atual do usuário logado' })
+  @ApiResponse({ status: 200, description: 'Operação bem sucedida' })
+  @ApiResponse({
+    status: 404,
+    description: 'Usuário não encontrado',
+    type: ErrorSwagger,
+  })
   async logout(
     @Cookies('refresh_token') refreshToken: string,
     @Headers('Authorization') userToken: string,
