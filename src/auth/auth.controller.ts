@@ -73,7 +73,7 @@ export class AuthController {
     });
 
     await this.authService.googleLogin(req.user);
-    return res.redirect('https://leitura-atualizada.rj.r.appspot.com/profile');
+    return res.redirect(`${process.env.BASE_URL}/profile`);
   }
 
   @Get('refresh')

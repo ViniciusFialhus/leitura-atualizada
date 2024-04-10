@@ -4,7 +4,7 @@
   <script src="https://cdn.jsdelivr.net/gh/wll8/redoc-try@1.4.9/dist/try.js"></script>
   <script>
     initTry({
-      openApi: `https://leitura-atualizada.rj.r.appspot.com/doc-json`,
+      openApi: `${process.env.BASE_URL}/doc-json`,
       redocOptions: { scrollYOffset: 50 },
       trySwaggerInApi: true,
     })
