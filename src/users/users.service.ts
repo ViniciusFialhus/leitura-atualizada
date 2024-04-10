@@ -2,11 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Book, User, Wishlist } from '@prisma/client';
 import { generateFromEmail } from 'unique-username-generator';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { WishlistRepository } from './repository/user-wishlist.repository';
 import { UserRepository } from './repository/user.repository';
 import { HttpService } from '@nestjs/axios';
 import { BooksService } from 'src/books/books.service';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -44,9 +44,12 @@ export class UsersService {
       await this.findByEmail(createUserDto.email);
       throw new HttpException('Usuario já existente', HttpStatus.BAD_REQUEST);
     } catch (error) {
-      createUserDto.username = generateFromEmail(createUserDto.email);
+      if (!createUserDto.username) {
+        createUserDto.username = generateFromEmail(createUserDto.email);
+      }
       createUserDto.shareableHash = '####################';
       createUserDto.refreshToken = null;
+      createUserDto.isAdm = false;
 
       return await this.userRepository.createUser(createUserDto);
     }
@@ -122,7 +125,7 @@ export class UsersService {
   async generateShareLink(userEmail: string): Promise<string> {
     const hash: string = await this.generateRandomCode();
     await this.updateUser(userEmail, { shareableHash: hash });
-    return `http://localhost:3000/${hash}`;
+    return `${process.env.BASE_URL}/${hash}`;
   }
 
   async accessPublicWishlist(hash: string): Promise<Book[]> {

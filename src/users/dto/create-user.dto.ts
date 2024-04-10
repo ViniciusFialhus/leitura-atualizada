@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsEmail,
@@ -12,10 +13,12 @@ import { User } from '../entities/user.entity';
 export class CreateUserDto implements User {
   @IsString({ message: 'Must be a String' })
   @MinLength(4, { message: 'Must have at least 4 characters' })
+  @ApiProperty()
   name: string;
 
   @IsNotEmpty({ message: 'Can`t be empty' })
   @IsEmail(undefined, { message: 'Must be a valid email' })
+  @ApiProperty()
   email: string;
 
   @IsBoolean({ message: 'Must be a boolean value' })
@@ -32,16 +35,20 @@ export class CreateUserDto implements User {
     At least one special character [*.!@#$%^&(){}[]:;<>,.?/~_+-=|\] 
     At least 8 characters in length, but no more than 32.`,
   })
+  @ApiProperty()
   password: string;
 
   @IsNotEmpty({ message: 'Can`t be empty' })
   @IsString({ message: 'Must be a String' })
   @MinLength(4, { message: 'Must have at least 4 characteres' })
+  @ApiProperty()
   username: string;
 
   @IsString({ message: 'Must be a String' })
+  @ApiProperty()
   shareableHash: string;
 
+  @ApiProperty()
   @IsString({ message: 'Must be a String' })
   refreshToken: string;
 }

@@ -7,10 +7,10 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { AuthGoogleDto } from './dtos/auth-google.dto';
 import { AuthLoginDto } from './dtos/auth-login.dto';
 import { AuthPayloadDto } from './dtos/auth-payload.dto';
 import { AuthLogin as UserCredentials } from './entities/auth-login.entity';
-import { AuthGoogleDto } from './dtos/auth-google.dto';
 import { UsersService } from 'src/users/users.service';
 import { HttpService } from '@nestjs/axios';
 
@@ -71,7 +71,7 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new HttpException(
         'Email ou senha incorretos.',
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -118,7 +118,7 @@ export class AuthService {
           email: userData.email,
           name: userData.firstName + ' ' + userData.lastName,
           password: '########',
-          isAdm: userData.isAdm,
+          isAdm: false,
           username: '########',
           shareableHash: '####################',
           refreshToken: null,

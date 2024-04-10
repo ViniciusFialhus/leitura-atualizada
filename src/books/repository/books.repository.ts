@@ -13,8 +13,8 @@ export class BooksRepository {
     });
   }
 
-  findAllBooks(): Promise<Book[]> {
-    return this.prisma.book.findMany();
+  async findAllBooks(): Promise<Book[]> {
+    return await this.prisma.book.findMany();
   }
 
   async searchBook(q: string): Promise<Book[]> {
