@@ -53,7 +53,7 @@ A estrutura e organização seguirão os padrões de uma API RESTful, com endpoi
     Exemplo do corpo da requisição:
     ```shell
     {
-      "e-mail": "email@mail.com",
+      "email": "email@mail.com",
       "senha": "###################"
     }
     ```
