@@ -21,10 +21,12 @@ A estrutura e organização seguirão os padrões de uma API RESTful, com endpoi
 
 ## Instruções
 1. Clone o repositório
-2. Efetue um deploy PostgreSQL em uma plataforma como a [Neon Console](https://console.neon.tech/)
-3. Cria diretamente um usuário `admin` para obter controle das funções administrativas do projeto
-4. Crie um arquivo `.env` e dê um valor válido para as variáveis listadas em `.env.example` de acordo com a [tabela](#variáveis-de-ambiente)
-5. Instale as dependências localmente ou construa e rode a imagem do projeto no Docker
+2. Efetue a integração do banco de dados PostgreSQL em uma plataforma como a [Neon Console](https://console.neon.tech/), ou caso prefira utilizar o Docker para isso, pule essa etapa
+3. Crie um arquivo `.env` e dê um valor válido para as variáveis listadas em `.env.example` de acordo com a [tabela](#variáveis-de-ambiente)
+4. Instale as dependências localmente ou construa e rode a imagem do projeto no Docker
+   - Caso utilize o Docker para rodar o banco de dados, em vez de criar a imagem utilizando o `Dockerfile`, utilize o `docker-compose.yml`
+
+<strong>OBS: Crie diretamente um usuário `admin` no banco, com a propriedade `isAdm: true` para obter controle das funções administrativas do projeto e poder conceder privilégios de administrador para outros usuários</strong>
 ## Endpoints
 <details>
 <summary id='autenticação'>Autenticação</summary>
@@ -533,9 +535,12 @@ A estrutura e organização seguirão os padrões de uma API RESTful, com endpoi
 |`GOOGLE_CLIENT_ID`      |ID do client do Google OAuth|
 |`GOOGLE_CLIENT_SECRET`  |Chave secreta utilizada para acessar o Google OAuth|
 |`JWT_SECRET`            |Chave usada para assinar e validar os tokens gerados no login|
-|`DATABASE_URL`          |URL da instância onde a aplicação está lançada|
+|`DATABASE_URL`          |URL da instância onde o banco de dados está lançado, caso seja via Docker, a URL será `postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@postgres:3000/{POSTGRES_DB}?schema={POSTGRES_DB}&sslmode=prefer`|
 |`SHADOW_DATABASE_URL`   |URL de um banco de dados local para migrations em ambiente de desenvolvimento|
 |`BASE_URL`              | Caminho da URL do projeto, podendo ser localhost:porta ou um link de aplicação em deploy|
+|`POSTGRES_USER`              | Nome de usuário para criação do banco de dados em uma imagem no Docker|
+|`POSTGRES_PASSWORD`              | Senha para criação do banco de dados em uma imagem no Docker|
+|`POSTGRES_DB`              | Nome do banco de dados para criação do banco de dados em uma imagem no Docker|
 ## Colaboradores
 - [Iago Ruas](https://github.com/Iago-Ruas)
 - [Alexon Granja](https://github.com/alxngrnj)
