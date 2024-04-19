@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  nest-api:
+    container_name: leitura-atualizada
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+
+volumes:
+  postgres:
+    name: leitura-atualizada-db
