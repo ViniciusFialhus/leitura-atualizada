@@ -77,4 +77,3 @@ ALTER TABLE "wishlist" ADD CONSTRAINT "wishlist_bookId_fkey" FOREIGN KEY ("bookI
 
 -- AddForeignKey
 ALTER TABLE "wishlist" ADD CONSTRAINT "wishlist_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
